@@ -81,4 +81,15 @@ export class AdminComponent implements OnInit {
       this.isLoading.set(false);
     }
   }
+
+  public formatRole(role: string): string {
+    switch (role) {
+      case 'business_agent': return 'Business Agent';
+      case 'chief_steward': return 'Chief Steward';
+      case 'steward': return 'Shop Steward';
+      case 'admin': return 'Union Admin';
+      case 'member': return 'Member';
+      default: return role?.replace(/_/g, ' ') || 'Member';
+    }
+  }
 }

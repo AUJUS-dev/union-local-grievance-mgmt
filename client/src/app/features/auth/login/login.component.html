@@ -68,10 +68,26 @@
             </div>
           </button>
 
-          <button mat-stroked-button class="demo-btn steward-demo" (click)="loginAsDemo('steward')" [disabled]="isLoading()">
-            <mat-icon style="color: #ea580c">badge</mat-icon>
+          <button mat-stroked-button class="demo-btn agent-demo" (click)="loginAsDemo('business_agent')" [disabled]="isLoading()">
+            <mat-icon style="color: #9333ea">business_center</mat-icon>
+            <div class="demo-info">
+              <span class="role">Business Agent (David Miller)</span>
+              <span class="email">agent&#64;unionlocal.org</span>
+            </div>
+          </button>
+
+          <button mat-stroked-button class="demo-btn chief-steward-demo" (click)="loginAsDemo('chief_steward')" [disabled]="isLoading()">
+            <mat-icon style="color: #ea580c">stars</mat-icon>
             <div class="demo-info">
               <span class="role">Chief Steward (Marcus Brody)</span>
+              <span class="email">chiefsteward&#64;unionlocal.org</span>
+            </div>
+          </button>
+
+          <button mat-stroked-button class="demo-btn steward-demo" (click)="loginAsDemo('steward')" [disabled]="isLoading()">
+            <mat-icon style="color: #0284c7">badge</mat-icon>
+            <div class="demo-info">
+              <span class="role">Shop Steward (John Davis)</span>
               <span class="email">steward&#64;unionlocal.org</span>
             </div>
           </button>
@@ -87,7 +103,8 @@
       </mat-card-content>
 
       <mat-card-actions class="card-footer">
-        <span>New member? Signing in automatically provisions your union member profile.</span>
+        <span>New member?</span>
+        <a mat-button color="primary" routerLink="/auth/register">Create Account / Register</a>
       </mat-card-actions>
     </mat-card>
   </div>

@@ -14,7 +14,7 @@
     "seed": "node lib/seed.js"
   },
   "engines": {
-    "node": ">=18"
+    "node": "20"
   },
   "dependencies": {
     "@union-local/shared": "file:../shared",

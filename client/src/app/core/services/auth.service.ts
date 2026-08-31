@@ -7,6 +7,7 @@ import {
   signInWithEmailAndPassword,
   signOut,
   onIdTokenChanged,
+  getAdditionalUserInfo,
   User
 } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
@@ -26,10 +27,22 @@ export class AuthService {
   public readonly userRole = signal<UserRole | null>(null);
   public readonly isLoading = signal<boolean>(true);
 
-  // Computed Role Signals
+  // Computed Signals
   public readonly isAuthenticated = computed(() => !!this.currentUser());
+  public readonly isRegistered = computed(() => {
+    const profile = this.userProfile();
+    if (!profile) return false;
+    if (profile.isRegistered === true) return true;
+    if (['admin', 'business_agent', 'chief_steward', 'steward'].includes(profile.role)) return true;
+    return !!(profile.memberId && profile.bargainingUnitId);
+  });
   public readonly isAdmin = computed(() => this.userRole() === 'admin');
-  public readonly isSteward = computed(() => this.userRole() === 'steward' || this.userRole() === 'admin');
+  public readonly isBusinessAgent = computed(() => this.userRole() === 'business_agent');
+  public readonly isChiefSteward = computed(() => this.userRole() === 'chief_steward');
+  public readonly isSteward = computed(() => {
+    const role = this.userRole();
+    return role === 'steward' || role === 'chief_steward' || role === 'business_agent' || role === 'admin';
+  });
   public readonly isMember = computed(() => !!this.currentUser());
 
   constructor() {
@@ -41,14 +54,22 @@ export class AuthService {
       this.isLoading.set(true);
       if (user) {
         this.currentUser.set(user);
-        
-        // Fetch custom claims token
-        const idTokenResult = await user.getIdTokenResult(true);
-        const roleFromClaim = (idTokenResult.claims['role'] as UserRole) || 'member';
-        this.userRole.set(roleFromClaim);
 
-        // Fetch / initialize Firestore profile
-        await this.loadUserProfile(user.uid, roleFromClaim);
+        // 1. Fetch Firestore profile
+        const profile = await this.loadUserProfile(user.uid);
+
+        // 2. Fetch custom claims token
+        let roleFromClaim: UserRole | undefined;
+        try {
+          const idTokenResult = await user.getIdTokenResult(true);
+          roleFromClaim = idTokenResult.claims['role'] as UserRole;
+        } catch (e) {
+          console.warn('Could not fetch custom claims:', e);
+        }
+
+        // 3. Determine role (profile role or claim, fallback to member)
+        const finalRole = profile?.role || roleFromClaim || 'member';
+        this.userRole.set(finalRole);
       } else {
         this.currentUser.set(null);
         this.userProfile.set(null);
@@ -70,19 +91,8 @@ export class AuthService {
         }
         return profile;
       } else {
-        const user = this.currentUser();
-        const defaultProfile: UserProfile = {
-          uid,
-          email: user?.email || '',
-          displayName: user?.displayName || user?.email?.split('@')[0] || 'Union Member',
-          role: fallbackRole,
-          localNumber: 'Local 1118',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        };
-        await setDoc(userDocRef, defaultProfile);
-        this.userProfile.set(defaultProfile);
-        return defaultProfile;
+        this.userProfile.set(null);
+        return null;
       }
     } catch (err) {
       console.error('Error fetching user profile from Firestore:', err);
@@ -90,35 +100,96 @@ export class AuthService {
     }
   }
 
-  public async loginWithGoogle(): Promise<void> {
+  public async completeRegistration(data: {
+    displayName: string;
+    memberId: string;
+    phoneNumber: string;
+    bargainingUnitId: string;
+    localNumber?: string;
+    department?: string;
+    jobTitle?: string;
+  }): Promise<UserProfile> {
+    const user = this.currentUser();
+    if (!user) {
+      throw new Error('No authenticated user found. Please sign in with an authentication provider first.');
+    }
+
+    const now = new Date().toISOString();
+    const newProfile: UserProfile = {
+      uid: user.uid,
+      email: user.email || '',
+      displayName: data.displayName || user.displayName || 'Union Member',
+      role: (this.userRole() as UserRole) || 'member',
+      localNumber: data.localNumber || 'Local 1118',
+      memberId: data.memberId,
+      phoneNumber: data.phoneNumber,
+      bargainingUnitId: data.bargainingUnitId,
+      department: data.department || '',
+      jobTitle: data.jobTitle || '',
+      isRegistered: true,
+      createdAt: this.userProfile()?.createdAt || now,
+      updatedAt: now
+    };
+
+    const userDocRef = doc(this.firebase.firestore, 'users', user.uid);
+    await setDoc(userDocRef, newProfile, { merge: true });
+    this.userProfile.set(newProfile);
+    this.userRole.set(newProfile.role);
+
+    return newProfile;
+  }
+
+  public async loginWithGoogle(): Promise<{ isNewUser: boolean; profile: UserProfile | null }> {
     this.isLoading.set(true);
     try {
       const provider = new GoogleAuthProvider();
       provider.addScope('email');
       provider.addScope('profile');
-      await signInWithPopup(this.firebase.auth, provider);
-      await this.router.navigate(['/dashboard']);
+      const cred = await signInWithPopup(this.firebase.auth, provider);
+      const isNewUserFromAuth = getAdditionalUserInfo(cred)?.isNewUser ?? false;
+      const profile = await this.loadUserProfile(cred.user.uid);
+      const isProfileRegistered = !!profile?.isRegistered || (!!profile?.memberId && !!profile?.bargainingUnitId);
+
+      if (isNewUserFromAuth || !isProfileRegistered) {
+        await this.router.navigate(['/auth/register']);
+        return { isNewUser: true, profile };
+      } else {
+        await this.router.navigate(['/dashboard']);
+        return { isNewUser: false, profile };
+      }
     } finally {
       this.isLoading.set(false);
     }
   }
 
-  public async loginWithApple(): Promise<void> {
+  public async loginWithApple(): Promise<{ isNewUser: boolean; profile: UserProfile | null }> {
     this.isLoading.set(true);
     try {
       const provider = new OAuthProvider('apple.com');
       provider.addScope('email');
       provider.addScope('name');
-      await signInWithPopup(this.firebase.auth, provider);
-      await this.router.navigate(['/dashboard']);
+      const cred = await signInWithPopup(this.firebase.auth, provider);
+      const isNewUserFromAuth = getAdditionalUserInfo(cred)?.isNewUser ?? false;
+      const profile = await this.loadUserProfile(cred.user.uid);
+      const isProfileRegistered = !!profile?.isRegistered || (!!profile?.memberId && !!profile?.bargainingUnitId);
+
+      if (isNewUserFromAuth || !isProfileRegistered) {
+        await this.router.navigate(['/auth/register']);
+        return { isNewUser: true, profile };
+      } else {
+        await this.router.navigate(['/dashboard']);
+        return { isNewUser: false, profile };
+      }
     } finally {
       this.isLoading.set(false);
     }
   }
 
-  public async demoLogin(role: 'admin' | 'steward' | 'member'): Promise<void> {
+  public async demoLogin(role: 'admin' | 'business_agent' | 'chief_steward' | 'steward' | 'member'): Promise<void> {
     const demoAccounts = {
       admin: { email: 'admin@unionlocal.org', password: 'password123' },
+      business_agent: { email: 'agent@unionlocal.org', password: 'password123' },
+      chief_steward: { email: 'chiefsteward@unionlocal.org', password: 'password123' },
       steward: { email: 'steward@unionlocal.org', password: 'password123' },
       member: { email: 'member@unionlocal.org', password: 'password123' }
     };
@@ -143,3 +214,4 @@ export class AuthService {
     await this.router.navigate(['/auth/login']);
   }
 }
+

@@ -53,7 +53,7 @@ export class LoginComponent {
     }
   }
 
-  public async loginAsDemo(role: 'admin' | 'steward' | 'member'): Promise<void> {
+  public async loginAsDemo(role: 'admin' | 'business_agent' | 'chief_steward' | 'steward' | 'member'): Promise<void> {
     this.isLoading.set(true);
     this.errorMessage.set(null);
     try {
