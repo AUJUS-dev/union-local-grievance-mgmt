@@ -1,4 +1,4 @@
-export type UserRole = 'admin' | 'steward' | 'member';
+export type UserRole = 'admin' | 'business_agent' | 'chief_steward' | 'steward' | 'member';
 export interface UserCustomClaims {
     role: UserRole;
     localNumber?: string;
@@ -14,6 +14,9 @@ export interface UserProfile {
     phoneNumber?: string;
     bargainingUnitId?: string;
     stewardUnitIds?: string[];
+    department?: string;
+    jobTitle?: string;
+    isRegistered?: boolean;
     createdAt: string;
     updatedAt: string;
 }

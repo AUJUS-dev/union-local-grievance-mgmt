@@ -33,7 +33,8 @@ export const generateGrievancePdf = onCall<{ grievanceId: string }>(async (reque
     }
   }
   const isOwner = grievance.memberUid === request.auth.uid;
-  if (callerRole !== 'admin' && callerRole !== 'steward' && !isOwner) {
+  const isPrivileged = ['admin', 'business_agent', 'chief_steward', 'steward'].includes(callerRole);
+  if (!isPrivileged && !isOwner) {
     if (!request.auth.uid) {
       throw new HttpsError('permission-denied', 'You do not have permission to generate this PDF.');
     }

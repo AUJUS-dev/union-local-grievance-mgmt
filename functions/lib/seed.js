@@ -58,13 +58,31 @@ async function seed() {
             localNumber: 'Local 1118'
         },
         {
+            uid: 'agent-uid-001',
+            email: 'agent@unionlocal.org',
+            password: 'password123',
+            displayName: 'David Miller (Business Agent)',
+            role: 'business_agent',
+            localNumber: 'Local 1118',
+            stewardUnits: ['unit-main-mfg', 'unit-logistics']
+        },
+        {
+            uid: 'chief-steward-uid-001',
+            email: 'chiefsteward@unionlocal.org',
+            password: 'password123',
+            displayName: 'Marcus Brody (Chief Steward)',
+            role: 'chief_steward',
+            localNumber: 'Local 1118',
+            stewardUnits: ['unit-main-mfg', 'unit-logistics']
+        },
+        {
             uid: 'steward-uid-001',
             email: 'steward@unionlocal.org',
             password: 'password123',
-            displayName: 'Marcus Brody (Chief Steward)',
+            displayName: 'John Davis (Shop Steward)',
             role: 'steward',
             localNumber: 'Local 1118',
-            stewardUnits: ['unit-main-mfg', 'unit-logistics']
+            stewardUnits: ['unit-main-mfg']
         },
         {
             uid: 'member-uid-001',
@@ -102,6 +120,7 @@ async function seed() {
                 displayName: u.displayName,
                 role: u.role,
                 localNumber: u.localNumber,
+                isRegistered: true,
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString()
             };
@@ -352,9 +371,11 @@ async function seed() {
     }
     console.log('✅ Seeded Sample Grievances with Notes & Timelines');
     console.log('🎉 Seeding successfully completed! Demo logins available:');
-    console.log('   - Admin:   admin@unionlocal.org   / password123');
-    console.log('   - Steward: steward@unionlocal.org / password123');
-    console.log('   - Member:  member@unionlocal.org  / password123');
+    console.log('   - Admin:          admin@unionlocal.org        / password123');
+    console.log('   - Business Agent: agent@unionlocal.org        / password123');
+    console.log('   - Chief Steward:  chiefsteward@unionlocal.org / password123');
+    console.log('   - Shop Steward:   steward@unionlocal.org      / password123');
+    console.log('   - Member:         member@unionlocal.org       / password123');
 }
 seed().catch((err) => {
     console.error('Fatal seed error:', err);

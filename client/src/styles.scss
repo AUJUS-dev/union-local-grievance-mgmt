@@ -85,6 +85,11 @@ html, body {
     background-color: #f3e8ff;
     color: #7e22ce;
   }
+
+  &.badge-info {
+    background-color: #e0f2fe;
+    color: #0369a1;
+  }
 }
 
 // Step Status Indicators
@@ -340,67 +345,25 @@ mat-option {
   }
 }
 
-// Material Form Fields (Inputs, Textareas, Selects) - Ensure left & right margins/padding from outline
+// Material Form Fields (Inputs, Textareas, Selects)
 mat-form-field,
 .mat-mdc-form-field {
-  // Input and textarea elements
-  input.mat-mdc-input-element,
-  textarea.mat-mdc-input-element,
-  .mat-mdc-input-element,
-  input.mat-input-element,
-  textarea.mat-input-element {
-    padding-left: 0.5rem !important;
-    padding-right: 0.5rem !important;
-    box-sizing: border-box;
-  }
+  width: 100%;
 
-  // Prefix and suffix icons spacing
   .mat-mdc-form-field-icon-prefix,
   .mat-form-field-icon-prefix {
-    padding-left: 0.75rem !important;
-    padding-right: 0.35rem !important;
+    color: #64748b;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    color: #64748b;
   }
 
   .mat-mdc-form-field-icon-suffix,
   .mat-form-field-icon-suffix {
-    padding-right: 0.75rem !important;
-    padding-left: 0.35rem !important;
+    color: #64748b;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    color: #64748b;
-  }
-
-  &.mat-mdc-form-field-type-mat-select,
-  &.mat-form-field-type-mat-select {
-    .mat-mdc-select-trigger,
-    .mat-select-trigger {
-      padding-left: 0.5rem;
-      padding-right: 0.5rem;
-      box-sizing: border-box;
-    }
-
-    .mat-mdc-select-value,
-    .mat-select-value {
-      padding-left: 0.25rem;
-    }
-
-    .mat-mdc-select-arrow-wrapper,
-    .mat-select-arrow-wrapper {
-      padding-right: 0.25rem;
-    }
-  }
-
-  mat-select,
-  .mat-mdc-select,
-  .mat-select {
-    padding-left: 0.25rem;
-    padding-right: 0.25rem;
-    box-sizing: border-box;
   }
 }
 

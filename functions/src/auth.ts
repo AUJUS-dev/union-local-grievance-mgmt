@@ -10,34 +10,54 @@ const db = admin.firestore();
  * in Firestore when a new Firebase Auth account is created.
  */
 export const onUserCreated = functions.auth.user().onCreate(async (user) => {
-  const role: UserRole = 'member';
-  const defaultLocal = 'Local 1118';
-
-  const customClaims: UserCustomClaims = {
-    role,
-    localNumber: defaultLocal
-  };
-
   try {
-    // 1. Set Custom Claims on the Auth record
+    // 1. Check if user already has custom claims with a defined role
+    const authUser = await admin.auth().getUser(user.uid);
+    const existingClaims = authUser.customClaims as UserCustomClaims | undefined;
+    if (existingClaims && existingClaims.role) {
+      console.log(`User ${user.uid} already has custom claim role: ${existingClaims.role}, preserving role.`);
+      return;
+    }
+
+    // 2. Check if Firestore user document already exists with a role
+    const userDocRef = db.collection('users').doc(user.uid);
+    const userDoc = await userDocRef.get();
+    if (userDoc.exists && userDoc.data()?.['role']) {
+      const existingRole = userDoc.data()?.['role'] as UserRole;
+      console.log(`User ${user.uid} already has Firestore role: ${existingRole}, syncing custom claims.`);
+      await admin.auth().setCustomUserClaims(user.uid, {
+        role: existingRole,
+        localNumber: userDoc.data()?.['localNumber'] || 'Local 1118',
+        stewardUnits: userDoc.data()?.['stewardUnitIds'] || []
+      });
+      return;
+    }
+
+    // 3. Brand new unprovisioned user: set default member role
+    const role: UserRole = 'member';
+    const defaultLocal = 'Local 1118';
+    const customClaims: UserCustomClaims = {
+      role,
+      localNumber: defaultLocal
+    };
+
     await admin.auth().setCustomUserClaims(user.uid, customClaims);
 
-    // 2. Create the Firestore User Profile document
-    const userProfile: UserProfile = {
+    const userProfile: Partial<UserProfile> = {
       uid: user.uid,
       email: user.email || '',
       displayName: user.displayName || user.email?.split('@')[0] || 'Union Member',
       role,
       localNumber: defaultLocal,
+      isRegistered: false,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
 
-    await db.collection('users').doc(user.uid).set(userProfile, { merge: true });
-
-    console.log(`Successfully provisioned user ${user.uid} with role: ${role}`);
+    await userDocRef.set(userProfile, { merge: true });
+    console.log(`Successfully provisioned new user ${user.uid} with default role: ${role}`);
   } catch (error) {
-    console.error(`Failed to provision user ${user.uid}:`, error);
+    console.error(`Failed in onUserCreated for user ${user.uid}:`, error);
   }
 });
 
@@ -60,10 +80,12 @@ export const setUserRole = onCall<SetUserRoleRequest>(async (request) => {
     throw new HttpsError('invalid-argument', 'targetUid and role are required parameters.');
   }
 
-  const validRoles: UserRole[] = ['admin', 'steward', 'member'];
+  const validRoles: UserRole[] = ['admin', 'business_agent', 'chief_steward', 'steward', 'member'];
   if (!validRoles.includes(role)) {
     throw new HttpsError('invalid-argument', `Invalid role. Must be one of: ${validRoles.join(', ')}`);
   }
+
+  const isStewardRole = ['steward', 'chief_steward', 'business_agent'].includes(role);
 
   try {
     // 1. Update Auth Custom Claims
@@ -71,7 +93,7 @@ export const setUserRole = onCall<SetUserRoleRequest>(async (request) => {
     const newClaims: UserCustomClaims = {
       ...currentClaims,
       role,
-      stewardUnits: role === 'steward' ? stewardUnits || [] : []
+      stewardUnits: isStewardRole ? stewardUnits || [] : []
     };
 
     await admin.auth().setCustomUserClaims(targetUid, newClaims);
@@ -79,7 +101,7 @@ export const setUserRole = onCall<SetUserRoleRequest>(async (request) => {
     // 2. Update Firestore User Profile
     const updateData: Partial<UserProfile> = {
       role,
-      stewardUnitIds: role === 'steward' ? stewardUnits || [] : [],
+      stewardUnitIds: isStewardRole ? stewardUnits || [] : [],
       updatedAt: new Date().toISOString()
     };
 

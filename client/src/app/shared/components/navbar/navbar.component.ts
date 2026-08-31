@@ -27,4 +27,25 @@ import { AuthService } from '../../../core/services/auth.service';
 })
 export class NavbarComponent {
   public auth = inject(AuthService);
+
+  public formatRole(role: string): string {
+    switch (role) {
+      case 'business_agent': return 'Business Agent';
+      case 'chief_steward': return 'Chief Steward';
+      case 'steward': return 'Shop Steward';
+      case 'admin': return 'Admin';
+      case 'member': return 'Member';
+      default: return role?.replace(/_/g, ' ') || 'Member';
+    }
+  }
+
+  public getRoleIcon(role: string): string {
+    switch (role) {
+      case 'admin': return 'security';
+      case 'business_agent': return 'business_center';
+      case 'chief_steward': return 'stars';
+      case 'steward': return 'badge';
+      default: return 'person';
+    }
+  }
 }

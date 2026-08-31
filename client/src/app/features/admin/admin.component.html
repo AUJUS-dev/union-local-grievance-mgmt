@@ -47,10 +47,11 @@
                     class="badge" 
                     [ngClass]="{
                       'badge-danger': u.role === 'admin',
-                      'badge-warning': u.role === 'steward',
+                      'badge-purple': u.role === 'business_agent',
+                      'badge-warning': u.role === 'chief_steward' || u.role === 'steward',
                       'badge-primary': u.role === 'member'
                     }">
-                    {{ u.role | uppercase }}
+                    {{ formatRole(u.role) | uppercase }}
                   </span>
                 </td>
               </ng-container>
@@ -60,10 +61,12 @@
                 <th mat-header-cell *matHeaderCellDef>Elevate / Change Role</th>
                 <td mat-cell *matCellDef="let u">
                   <div class="role-action-cell">
-                    <mat-form-field appearance="outline" class="compact-select">
+                    <mat-form-field appearance="outline" class="compact-select" subscriptSizing="dynamic">
                       <mat-select [value]="u.role" (selectionChange)="updateUserRole(u.uid, $event.value)">
                         <mat-option value="member">Member</mat-option>
                         <mat-option value="steward">Shop Steward</mat-option>
+                        <mat-option value="chief_steward">Chief Steward</mat-option>
+                        <mat-option value="business_agent">Business Agent</mat-option>
                         <mat-option value="admin">Union Admin</mat-option>
                       </mat-select>
                     </mat-form-field>

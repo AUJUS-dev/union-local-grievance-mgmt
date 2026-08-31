@@ -17,7 +17,7 @@ service cloud.firestore {
     }
 
     function isSteward() {
-      return isSignedIn() && (userRole() == 'steward' || userRole() == 'admin');
+      return isSignedIn() && (userRole() == 'steward' || userRole() == 'chief_steward' || userRole() == 'business_agent' || userRole() == 'admin');
     }
 
     function isOwner(uid) {

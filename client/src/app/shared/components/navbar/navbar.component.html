@@ -11,8 +11,8 @@
       </div>
     </a>
 
-    <!-- Navigation Links (When Authenticated) -->
-    <nav class="nav-links" *ngIf="auth.isAuthenticated()">
+    <!-- Navigation Links (When Authenticated and Registered) -->
+    <nav class="nav-links" *ngIf="auth.isAuthenticated() && auth.isRegistered()">
       <a mat-button routerLink="/dashboard" routerLinkActive="active-nav">
         <mat-icon>dashboard</mat-icon> Dashboard
       </a>
@@ -36,13 +36,15 @@
         class="badge" 
         [ngClass]="{
           'badge-danger': auth.userRole() === 'admin',
-          'badge-warning': auth.userRole() === 'steward',
-          'badge-primary': auth.userRole() === 'member'
+          'badge-purple': auth.userRole() === 'business_agent',
+          'badge-warning': auth.userRole() === 'chief_steward' || auth.userRole() === 'steward',
+          'badge-primary': auth.userRole() === 'member' && auth.isRegistered(),
+          'badge-info': !auth.isRegistered()
         }">
         <mat-icon style="font-size: 14px; width: 14px; height: 14px;">
-          {{ auth.userRole() === 'admin' ? 'security' : (auth.userRole() === 'steward' ? 'badge' : 'person') }}
+          {{ !auth.isRegistered() ? 'how_to_reg' : getRoleIcon(auth.userRole() || '') }}
         </mat-icon>
-        {{ (auth.userRole() || 'MEMBER') | uppercase }}
+        {{ (!auth.isRegistered() ? 'ONBOARDING' : formatRole(auth.userRole() || 'member')) | uppercase }}
       </span>
 
       <!-- Fast Role Switcher (Dev Mode) -->
@@ -55,9 +57,17 @@
           <mat-icon color="warn">security</mat-icon>
           <span>Admin (Sarah Connor)</span>
         </button>
-        <button mat-menu-item (click)="auth.demoLogin('steward')">
-          <mat-icon style="color: #ea580c">badge</mat-icon>
+        <button mat-menu-item (click)="auth.demoLogin('business_agent')">
+          <mat-icon style="color: #9333ea">business_center</mat-icon>
+          <span>Business Agent (David Miller)</span>
+        </button>
+        <button mat-menu-item (click)="auth.demoLogin('chief_steward')">
+          <mat-icon style="color: #ea580c">stars</mat-icon>
           <span>Chief Steward (Marcus Brody)</span>
+        </button>
+        <button mat-menu-item (click)="auth.demoLogin('steward')">
+          <mat-icon style="color: #0284c7">badge</mat-icon>
+          <span>Shop Steward (John Davis)</span>
         </button>
         <button mat-menu-item (click)="auth.demoLogin('member')">
           <mat-icon color="primary">person</mat-icon>
