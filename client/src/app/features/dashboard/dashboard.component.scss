@@ -1,0 +1,232 @@
+.welcome-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  background: white;
+  padding: 1.5rem 2rem;
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+
+  .header-left h1 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    margin: 0;
+    color: #0f172a;
+  }
+
+  .subtitle {
+    margin: 0.25rem 0 0;
+    color: #64748b;
+    font-size: 0.95rem;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 0.75rem;
+  }
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.dashboard-columns {
+  display: grid;
+  grid-template-columns: 2.2fr 1fr;
+  gap: 1.5rem;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.section-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.title-with-icon {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  h2 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0;
+    color: #0f172a;
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  color: #64748b;
+
+  mat-icon {
+    font-size: 40px;
+    width: 40px;
+    height: 40px;
+    color: #16a34a;
+    margin-bottom: 0.5rem;
+  }
+}
+
+.deadline-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+
+  mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+  }
+
+  &.urgent {
+    background-color: #fee2e2;
+    color: #b91c1c;
+  }
+
+  &.warning {
+    background-color: #fef3c7;
+    color: #b45309;
+  }
+}
+
+.title-cell {
+  display: flex;
+  flex-direction: column;
+
+  .cell-primary {
+    font-weight: 600;
+    color: #0f172a;
+  }
+
+  .cell-sub {
+    font-size: 0.75rem;
+    color: #64748b;
+  }
+}
+
+.grievance-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.grievance-item-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+
+  &:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+  }
+
+  .item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .case-number {
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: #1e3a8a;
+  }
+
+  .item-title {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #0f172a;
+    margin-bottom: 0.5rem;
+  }
+
+  .item-meta {
+    display: flex;
+    gap: 1.5rem;
+    font-size: 0.8rem;
+    color: #64748b;
+    flex-wrap: wrap;
+  }
+}
+
+.cba-card-info {
+  .contract-badge {
+    background: #1e3a8a;
+    color: white;
+    padding: 0.35rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-block;
+    margin-bottom: 0.5rem;
+  }
+
+  .cba-exp {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin: 0 0 1rem;
+  }
+}
+
+.cba-rule-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  .rule-item {
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 0.5rem;
+
+    .rule-title {
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: #1e293b;
+    }
+
+    .rule-val {
+      font-size: 0.8rem;
+      color: #64748b;
+    }
+  }
+}
+
+.help-box {
+  font-size: 0.85rem;
+  color: #475569;
+
+  .contact-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    font-weight: 500;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      color: #2563eb;
+    }
+  }
+}

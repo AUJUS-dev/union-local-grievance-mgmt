@@ -1,0 +1,138 @@
+:host {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  display: block;
+}
+
+.union-nav {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background-color: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #ffffff;
+  height: 68px;
+  border-bottom: 1px solid #1e293b;
+  padding: 0;
+}
+
+.nav-container {
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.brand-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.logo-badge {
+  background: #1e3a8a;
+  color: #60a5fa;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #3b82f6;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.union-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: #f8fafc;
+}
+
+.union-sub {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: 1rem;
+
+  a {
+    color: #cbd5e1;
+    font-weight: 500;
+
+    &.active-nav {
+      color: #ffffff;
+      background-color: #1e293b;
+    }
+  }
+}
+
+.new-filing-btn {
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+  font-weight: 600;
+}
+
+.flex-spacer {
+  flex: 1;
+}
+
+.user-section {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.demo-switch-btn {
+  color: #cbd5e1 !important;
+  border-color: #334155 !important;
+  font-size: 0.8rem;
+}
+
+.menu-header {
+  padding: 0.5rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  background-color: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.user-info-box {
+  padding: 0.75rem 1rem;
+  background-color: #ffffff;
+
+  .name {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #0f172a;
+  }
+
+  .email {
+    font-size: 0.8rem;
+    color: #64748b;
+  }
+
+  .local {
+    font-size: 0.75rem;
+    color: #2563eb;
+    font-weight: 600;
+    margin-top: 0.25rem;
+  }
+}

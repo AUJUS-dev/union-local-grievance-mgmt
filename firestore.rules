@@ -1,0 +1,111 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions for Custom Claims RBAC
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function userRole() {
+      return request.auth.token.role;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && userRole() == 'admin';
+    }
+
+    function isSteward() {
+      return isSignedIn() && (userRole() == 'steward' || userRole() == 'admin');
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function getGrievance(grievanceId) {
+      return get(/databases/$(database)/documents/grievances/$(grievanceId)).data;
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && (isAdmin() || isOwner(userId));
+      allow update: if isAdmin() || (
+        isOwner(userId) && 
+        !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'stewardUnitIds'])
+      );
+      allow delete: if isAdmin();
+    }
+
+    // CBA Contracts & Articles
+    match /cba_contracts/{contractId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // Bargaining Units
+    match /bargaining_units/{unitId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // Grievances Collection
+    match /grievances/{grievanceId} {
+      allow read: if isSignedIn() && (
+        isSteward() || 
+        resource.data.memberUid == request.auth.uid ||
+        resource.data.assignedStewardUid == request.auth.uid
+      );
+      
+      allow create: if isSignedIn() && (
+        isSteward() || 
+        request.resource.data.memberUid == request.auth.uid
+      );
+
+      allow update: if isSignedIn() && (
+        isSteward() || 
+        (resource.data.memberUid == request.auth.uid && resource.data.status == 'DRAFT')
+      );
+
+      allow delete: if isAdmin();
+
+      // Grievance Activities / Audit Log
+      match /activities/{activityId} {
+        allow read: if isSignedIn() && (
+          isSteward() || 
+          getGrievance(grievanceId).memberUid == request.auth.uid
+        );
+        allow create: if isSignedIn() && isSteward();
+        allow update, delete: if isAdmin();
+      }
+
+      // Grievance Notes
+      match /notes/{noteId} {
+        allow read: if isSignedIn() && (
+          isSteward() || 
+          (resource.data.isConfidentialUnionOnly == false && getGrievance(grievanceId).memberUid == request.auth.uid)
+        );
+        allow create: if isSignedIn() && (
+          isSteward() || 
+          (request.resource.data.isConfidentialUnionOnly == false && getGrievance(grievanceId).memberUid == request.auth.uid)
+        );
+        allow update, delete: if isAdmin() || (isSignedIn() && resource.data.authorUid == request.auth.uid);
+      }
+
+      // Grievance Attachments
+      match /attachments/{attachmentId} {
+        allow read: if isSignedIn() && (
+          isSteward() || 
+          getGrievance(grievanceId).memberUid == request.auth.uid
+        );
+        allow create: if isSignedIn() && (
+          isSteward() || 
+          getGrievance(grievanceId).memberUid == request.auth.uid
+        );
+        allow update, delete: if isAdmin() || (isSignedIn() && resource.data.uploadedBy.uid == request.auth.uid);
+      }
+    }
+  }
+}

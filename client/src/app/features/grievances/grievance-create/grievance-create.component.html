@@ -1,0 +1,240 @@
+<div class="page-header">
+    <div>
+      <a mat-button routerLink="/grievances" class="back-link">
+        <mat-icon>arrow_back</mat-icon> Back to Grievances
+      </a>
+      <h1>Official Union Grievance Filing Wizard</h1>
+      <p class="subtitle">Complete the 4-step wizard to file an official Step 1 grievance</p>
+    </div>
+  </div>
+
+  <mat-card class="card-modern wizard-card">
+    <mat-progress-bar *ngIf="isSubmitting()" mode="indeterminate"></mat-progress-bar>
+
+    <mat-stepper [linear]="true" #stepper>
+      <!-- STEP 1: Parties & Work Location -->
+      <mat-step [stepControl]="partiesForm">
+        <ng-template matStepLabel>Parties & Unit</ng-template>
+        <form [formGroup]="partiesForm" class="step-form">
+          <div class="section-intro">
+            <h3>1. Aggrieved Member & Employer Details</h3>
+            <p>Verify the grievant identity, bargaining unit, and immediate management supervisor.</p>
+          </div>
+
+          <div class="form-grid-2">
+            <mat-form-field appearance="outline">
+              <mat-label>Aggrieved Member Name</mat-label>
+              <input matInput formControlName="memberName" />
+              <mat-icon matPrefix>person</mat-icon>
+              <mat-error *ngIf="partiesForm.get('memberName')?.hasError('required')">Name is required</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Member Employee ID / Clock #</mat-label>
+              <input matInput formControlName="memberId" placeholder="e.g. MEM-8842" />
+              <mat-icon matPrefix>badge</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Bargaining Unit</mat-label>
+              <mat-select formControlName="bargainingUnitId">
+                <mat-option value="unit-main-mfg">Main Manufacturing Plant</mat-option>
+                <mat-option value="unit-logistics">Regional Logistics Center</mat-option>
+              </mat-select>
+              <mat-icon matPrefix>domain</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Employer Name</mat-label>
+              <input matInput formControlName="employerName" />
+              <mat-icon matPrefix>apartment</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Member Department</mat-label>
+              <input matInput formControlName="memberDepartment" placeholder="e.g. Machining & Fabrication" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Immediate Supervisor / Manager</mat-label>
+              <input matInput formControlName="supervisorName" placeholder="e.g. Frank Henderson" />
+              <mat-error *ngIf="partiesForm.get('supervisorName')?.hasError('required')">Supervisor is required</mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="step-actions">
+            <div></div>
+            <button mat-flat-button color="primary" matStepperNext [disabled]="partiesForm.invalid">
+              Next: CBA Articles & Priority <mat-icon>arrow_forward</mat-icon>
+            </button>
+          </div>
+        </form>
+      </mat-step>
+
+      <!-- STEP 2: CBA Violations & Priority -->
+      <mat-step [stepControl]="incidentForm">
+        <ng-template matStepLabel>CBA Articles & Priority</ng-template>
+        <form [formGroup]="incidentForm" class="step-form">
+          <div class="section-intro">
+            <h3>2. Violated CBA Articles & Case Priority</h3>
+            <p>Select the case priority urgency and check all applicable CBA contract provisions.</p>
+          </div>
+
+          <mat-form-field appearance="outline" class="full-width mb-4">
+            <mat-label>Priority Level</mat-label>
+            <mat-select formControlName="priority">
+              <mat-option value="URGENT">Urgent (Suspension/Safety/Discharge)</mat-option>
+              <mat-option value="HIGH">High</mat-option>
+              <mat-option value="MEDIUM">Medium</mat-option>
+              <mat-option value="LOW">Low</mat-option>
+            </mat-select>
+            <mat-icon matPrefix>flag</mat-icon>
+          </mat-form-field>
+
+          <!-- CBA Contract Article Checkboxes -->
+          <div class="cba-selector-box">
+            <h4>Select Applicable Collective Bargaining Agreement Articles:</h4>
+            <div class="article-checkbox-list">
+              <div *ngFor="let art of availableArticles" class="article-checkbox-item">
+                <mat-checkbox 
+                  [checked]="isArticleSelected(art)" 
+                  (change)="toggleArticle(art, $event.checked)">
+                  <strong>{{ art.articleNumber }}: {{ art.title }}</strong>
+                  <span class="art-desc">{{ art.description }}</span>
+                </mat-checkbox>
+              </div>
+            </div>
+          </div>
+
+          <div class="step-actions">
+            <button mat-button matStepperPrevious>Back</button>
+            <button mat-flat-button color="primary" matStepperNext [disabled]="incidentForm.invalid || selectedArticles.length === 0">
+              Next: Facts & Remedy <mat-icon>arrow_forward</mat-icon>
+            </button>
+          </div>
+        </form>
+      </mat-step>
+
+      <!-- STEP 3: Statement of Grievance & Remedy -->
+      <mat-step [stepControl]="statementForm">
+        <ng-template matStepLabel>Facts & Remedy</ng-template>
+        <form [formGroup]="statementForm" class="step-form">
+          <div class="section-intro">
+            <h3>3. Detailed Facts & Requested Remedy</h3>
+            <p>Provide the date of incident, a comprehensive narrative of what occurred, and what relief makes the member whole.</p>
+          </div>
+
+          <mat-form-field appearance="outline" class="full-width mb-2">
+            <mat-label>Grievance Subject / Title</mat-label>
+            <input matInput formControlName="title" placeholder="e.g. Improper Mandatory Overtime Bypass on Line 4" />
+            <mat-icon matPrefix>title</mat-icon>
+            <mat-error *ngIf="statementForm.get('title')?.hasError('required')">Title is required</mat-error>
+          </mat-form-field>
+
+          <div class="form-grid-2 mb-2">
+            <mat-form-field appearance="outline">
+              <mat-label>Date of Incident</mat-label>
+              <input matInput [matDatepicker]="incidentPicker" formControlName="incidentDate" />
+              <mat-datepicker-toggle matIconSuffix [for]="incidentPicker"></mat-datepicker-toggle>
+              <mat-datepicker #incidentPicker></mat-datepicker>
+              <mat-error *ngIf="statementForm.get('incidentDate')?.hasError('required')">Incident date is required</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Approx. Time of Incident</mat-label>
+              <input matInput [matTimepicker]="incidentTimePicker" formControlName="incidentTime" placeholder="e.g. 02:30 PM" />
+              <mat-timepicker-toggle matIconSuffix [for]="incidentTimePicker"></mat-timepicker-toggle>
+              <mat-timepicker #incidentTimePicker interval="15m"></mat-timepicker>
+            </mat-form-field>
+          </div>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Detailed Statement of Grievance & Facts</mat-label>
+            <textarea matInput rows="5" formControlName="description" placeholder="Describe the sequence of events, witness names, dates, times, and how management violated the agreement..."></textarea>
+            <mat-error *ngIf="statementForm.get('description')?.hasError('required')">Statement is required</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Remedy / Relief Requested</mat-label>
+            <textarea matInput rows="3" formControlName="remedyRequested" placeholder="e.g. Make grievant whole in every respect, including reimbursement of 8 hours overtime pay and purge disciplinary notice..."></textarea>
+            <mat-error *ngIf="statementForm.get('remedyRequested')?.hasError('required')">Remedy requested is required</mat-error>
+          </mat-form-field>
+
+          <div class="step-actions">
+            <button mat-button matStepperPrevious>Back</button>
+            <button mat-flat-button color="primary" matStepperNext [disabled]="statementForm.invalid">
+              Next: Review & Submit <mat-icon>arrow_forward</mat-icon>
+            </button>
+          </div>
+        </form>
+      </mat-step>
+
+      <!-- STEP 4: Review & File -->
+      <mat-step>
+        <ng-template matStepLabel>Review & File</ng-template>
+        <div class="review-section">
+          <div class="section-intro">
+            <h3>4. Review Step 1 Grievance Filing</h3>
+            <p>Review the case details below before officially submitting into the union database.</p>
+          </div>
+
+          <div class="review-card">
+            <div class="review-row">
+              <div class="review-label">Title:</div>
+              <div class="review-val font-bold">{{ statementForm.value.title }}</div>
+            </div>
+            <div class="review-row">
+              <div class="review-label">Aggrieved Member:</div>
+              <div class="review-val">{{ partiesForm.value.memberName }} ({{ partiesForm.value.memberId || 'N/A' }})</div>
+            </div>
+            <div class="review-row">
+              <div class="review-label">Bargaining Unit:</div>
+              <div class="review-val">{{ partiesForm.value.bargainingUnitId === 'unit-main-mfg' ? 'Main Manufacturing Plant' : 'Regional Logistics Center' }}</div>
+            </div>
+            <div class="review-row">
+              <div class="review-label">Immediate Supervisor:</div>
+              <div class="review-val">{{ partiesForm.value.supervisorName }}</div>
+            </div>
+            <div class="review-row">
+              <div class="review-label">Date & Time of Incident:</div>
+              <div class="review-val">
+                {{ statementForm.value.incidentDate | date:'mediumDate' }}
+                <span *ngIf="statementForm.value.incidentTime"> &bull; {{ statementForm.value.incidentTime | date:'shortTime' }}</span>
+              </div>
+            </div>
+            <div class="review-row">
+              <div class="review-label">Priority:</div>
+              <div class="review-val">
+                <span class="badge badge-warning">{{ incidentForm.value.priority }}</span>
+              </div>
+            </div>
+            <div class="review-row">
+              <div class="review-label">CBA Articles Violated:</div>
+              <div class="review-val">
+                <div class="flex gap-2 flex-wrap">
+                  <span class="badge badge-primary" *ngFor="let art of selectedArticles">
+                    {{ art.articleNumber }}: {{ art.title }}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="review-row">
+              <div class="review-label">Statement:</div>
+              <div class="review-val pre-wrap">{{ statementForm.value.description }}</div>
+            </div>
+            <div class="review-row">
+              <div class="review-label">Remedy:</div>
+              <div class="review-val highlight-remedy">{{ statementForm.value.remedyRequested }}</div>
+            </div>
+          </div>
+
+          <div class="step-actions mt-6">
+            <button mat-button matStepperPrevious [disabled]="isSubmitting()">Back</button>
+            <button mat-flat-button color="primary" class="file-btn" (click)="submitGrievance()" [disabled]="isSubmitting()">
+              <mat-icon>send</mat-icon> Officially File Step 1 Grievance
+            </button>
+          </div>
+        </div>
+      </mat-step>
+    </mat-stepper>
+  </mat-card>

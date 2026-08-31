@@ -1,0 +1,21 @@
+{
+  "name": "union-local-grievance-mgmt",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Union Local Grievance Management System with Angular, Firebase Functions, and Firestore",
+  "scripts": {
+    "build": "npm --prefix shared run build && npm --prefix functions run build && npm --prefix client run build",
+    "build:shared": "npm --prefix shared run build",
+    "build:functions": "npm --prefix functions run build",
+    "build:client": "npm --prefix client run build",
+    "dev": "concurrently -n \"emulators,client\" -c \"yellow,blue\" \"npm run emulators\" \"npm --prefix client run start\"",
+    "emulators": "firebase emulators:start --project demo-union-local --only auth,firestore,functions,hosting",
+    "seed": "npm --prefix functions run seed",
+    "lint": "npm --prefix client run lint && npm --prefix functions run lint",
+    "test": "CI=true PAGER=cat NX_DAEMON=false npm --prefix client run test -- --watch=false"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0",
+    "firebase-tools": "^13.29.1"
+  }
+}

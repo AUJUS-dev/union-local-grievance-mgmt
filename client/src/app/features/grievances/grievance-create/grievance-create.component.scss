@@ -1,0 +1,132 @@
+.wizard-card {
+  padding: 2rem !important;
+}
+
+.back-link {
+  margin-bottom: 0.5rem;
+  color: #64748b;
+}
+
+.section-intro {
+  margin-bottom: 1.5rem;
+
+  h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0;
+    color: #0f172a;
+  }
+
+  p {
+    margin: 0.25rem 0 0;
+    color: #64748b;
+    font-size: 0.9rem;
+  }
+}
+
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.title-date-grid {
+  display: grid;
+  grid-template-columns: 1fr 220px;
+  gap: 1.25rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.cba-selector-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+
+  h4 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin: 0 0 1rem;
+    color: #1e293b;
+  }
+}
+
+.article-checkbox-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.article-checkbox-item {
+  background: white;
+  padding: 0.75rem;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+
+  .art-desc {
+    display: block;
+    font-size: 0.8rem;
+    color: #64748b;
+    margin-top: 0.2rem;
+  }
+}
+
+.step-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 2rem;
+}
+
+.review-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.review-row {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid #e2e8f0;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  .review-label {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #475569;
+  }
+
+  .review-val {
+    font-size: 0.9rem;
+    color: #0f172a;
+  }
+}
+
+.highlight-remedy {
+  color: #15803d;
+  font-weight: 600;
+}
+
+.pre-wrap {
+  white-space: pre-wrap;
+}
+
+.file-btn {
+  background-color: #1e3a8a !important;
+  font-size: 1rem;
+  padding: 0.5rem 1.5rem;
+  height: 48px;
+}

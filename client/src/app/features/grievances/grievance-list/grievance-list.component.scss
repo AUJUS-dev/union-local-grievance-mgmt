@@ -1,0 +1,163 @@
+.filter-toolbar {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+
+.search-field {
+  flex: 2;
+  min-width: 280px;
+}
+
+.filter-select {
+  flex: 1;
+  min-width: 180px;
+}
+
+.reset-filters-btn {
+  height: 50px;
+  margin-top: -1.25rem;
+  white-space: nowrap;
+}
+
+.case-number-badge {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #1e3a8a;
+  background: #eff6ff;
+  padding: 0.3rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #bfdbfe;
+  white-space: nowrap;
+}
+
+.details-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+
+  .g-title {
+    font-weight: 600;
+    color: #0f172a;
+    font-size: 0.95rem;
+  }
+
+  .g-articles {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .article-tag {
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+  }
+
+  .incident-date {
+    font-size: 0.75rem;
+    color: #64748b;
+  }
+}
+
+.member-cell {
+  display: flex;
+  flex-direction: column;
+
+  .m-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #1e293b;
+  }
+
+  .m-unit {
+    font-size: 0.75rem;
+    color: #64748b;
+  }
+}
+
+.steward-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  color: #334155;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: #ea580c;
+  }
+}
+
+.step-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  align-items: flex-start;
+}
+
+.deadline-cell {
+  display: flex;
+  flex-direction: column;
+
+  .countdown-text {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.85rem;
+    color: #b45309;
+
+    mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+
+    &.urgent {
+      color: #dc2626;
+      font-weight: 700;
+    }
+  }
+
+  .deadline-date {
+    font-size: 0.75rem;
+    color: #64748b;
+  }
+}
+
+.action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.empty-list {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #64748b;
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: #94a3b8;
+  }
+
+  h3 {
+    margin: 0.5rem 0 0;
+    color: #1e293b;
+  }
+
+  p {
+    margin: 0.25rem 0 0;
+    font-size: 0.875rem;
+  }
+}

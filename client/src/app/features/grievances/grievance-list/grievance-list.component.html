@@ -1,0 +1,186 @@
+<div class="page-header">
+    <div>
+      <h1>Union Grievance Registry</h1>
+      <p class="subtitle">Search, filter, and track all formal and informal grievances</p>
+    </div>
+    <div class="flex gap-2">
+      <a mat-flat-button color="primary" routerLink="/grievances/create">
+        <mat-icon>add</mat-icon> File Grievance
+      </a>
+    </div>
+  </div>
+
+  <mat-card class="card-modern">
+    <!-- Search and Filter Bar -->
+    <div class="filter-toolbar">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search by case #, title, member, or supervisor</mat-label>
+        <input 
+          matInput 
+          [ngModel]="searchQuery()" 
+          (ngModelChange)="searchQuery.set($event)" 
+          placeholder="e.g. Overtime or GR-2026" />
+        <mat-icon matPrefix>search</mat-icon>
+        <button mat-icon-button matSuffix *ngIf="searchQuery()" (click)="searchQuery.set('')" aria-label="Clear search">
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-select">
+        <mat-label>Filter by Priority</mat-label>
+        <mat-select [value]="selectedPriority()" (selectionChange)="selectedPriority.set($event.value)">
+          <mat-option value="ALL">All Priorities</mat-option>
+          <mat-option value="URGENT">Urgent</mat-option>
+          <mat-option value="HIGH">High</mat-option>
+          <mat-option value="MEDIUM">Medium</mat-option>
+          <mat-option value="LOW">Low</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-select">
+        <mat-label>Bargaining Unit</mat-label>
+        <mat-select [value]="selectedUnit()" (selectionChange)="selectedUnit.set($event.value)">
+          <mat-option value="ALL">All Bargaining Units</mat-option>
+          <mat-option *ngFor="let unit of cbaService.bargainingUnits()" [value]="unit.id">
+            {{ unit.name }}
+          </mat-option>
+          <ng-container *ngIf="cbaService.bargainingUnits().length === 0">
+            <mat-option value="unit-main-mfg">Main Manufacturing Plant</mat-option>
+            <mat-option value="unit-logistics">Regional Logistics Center</mat-option>
+          </ng-container>
+        </mat-select>
+      </mat-form-field>
+
+      <button 
+        *ngIf="hasActiveFilters()" 
+        mat-button 
+        color="warn" 
+        (click)="resetFilters()" 
+        class="reset-filters-btn">
+        <mat-icon>filter_alt_off</mat-icon> Reset Filters
+      </button>
+    </div>
+
+    <!-- Step Tabs -->
+    <mat-tab-group [selectedIndex]="selectedTabIndex()" (selectedIndexChange)="onTabChange($event)" class="mb-4">
+      <mat-tab label="All Cases ({{ allCount() }})"></mat-tab>
+      <mat-tab label="Step 1 Informal ({{ step1Count() }})"></mat-tab>
+      <mat-tab label="Step 2 Formal ({{ step2Count() }})"></mat-tab>
+      <mat-tab label="Step 3 Mediation ({{ step3Count() }})"></mat-tab>
+      <mat-tab label="Step 4 Arbitration ({{ step4Count() }})"></mat-tab>
+      <mat-tab label="Settled / Resolved ({{ settledCount() }})"></mat-tab>
+    </mat-tab-group>
+
+    <mat-progress-bar *ngIf="grievanceService.isLoading()" mode="indeterminate"></mat-progress-bar>
+
+    <!-- Empty State -->
+    <div *ngIf="filteredGrievances().length === 0 && !grievanceService.isLoading()" class="empty-list">
+      <mat-icon>inbox</mat-icon>
+      <h3>No grievances match your criteria</h3>
+      <p>Try adjusting your search query or filter selections.</p>
+      <button mat-stroked-button color="primary" *ngIf="hasActiveFilters()" (click)="resetFilters()" class="mt-3">
+        Clear All Filters
+      </button>
+    </div>
+
+    <!-- Data Table -->
+    <div class="table-container" *ngIf="filteredGrievances().length > 0">
+      <table mat-table [dataSource]="filteredGrievances()" class="mat-elevation-z0">
+        <!-- Case # -->
+        <ng-container matColumnDef="grievanceNumber">
+          <th mat-header-cell *matHeaderCellDef>Case #</th>
+          <td mat-cell *matCellDef="let g">
+            <span class="case-number-badge">{{ g.grievanceNumber }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Case Title & Date -->
+        <ng-container matColumnDef="title">
+          <th mat-header-cell *matHeaderCellDef>Grievance Details</th>
+          <td mat-cell *matCellDef="let g">
+            <div class="details-cell">
+              <span class="g-title">{{ g.title }}</span>
+              <div class="g-articles">
+                <span class="article-tag" *ngFor="let art of g.violatedArticles">
+                  {{ art.articleNumber }}
+                </span>
+                <span class="incident-date">Incident: {{ g.incidentDate | date:'mediumDate' }}</span>
+              </div>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Member & Unit -->
+        <ng-container matColumnDef="member">
+          <th mat-header-cell *matHeaderCellDef>Member & Unit</th>
+          <td mat-cell *matCellDef="let g">
+            <div class="member-cell">
+              <span class="m-name">{{ g.memberName }}</span>
+              <span class="m-unit">{{ g.bargainingUnitName }}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Assigned Steward -->
+        <ng-container matColumnDef="steward">
+          <th mat-header-cell *matHeaderCellDef>Assigned Steward</th>
+          <td mat-cell *matCellDef="let g">
+            <span class="steward-tag">
+              <mat-icon>badge</mat-icon>
+              {{ g.assignedStewardName || 'Unassigned' }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Step -->
+        <ng-container matColumnDef="step">
+          <th mat-header-cell *matHeaderCellDef>Step & Priority</th>
+          <td mat-cell *matCellDef="let g">
+            <div class="step-cell">
+              <span class="step-chip" [ngClass]="getStepClass(g.currentStep)">
+                {{ formatStep(g.currentStep) }}
+              </span>
+              <span class="badge" [ngClass]="getPriorityClass(g.priority)">
+                {{ g.priority }}
+              </span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Deadline -->
+        <ng-container matColumnDef="deadline">
+          <th mat-header-cell *matHeaderCellDef>Response Deadline</th>
+          <td mat-cell *matCellDef="let g">
+            <div class="deadline-cell" *ngIf="g.currentStep !== 'SETTLED' && g.currentStep !== 'CLOSED'">
+              <div class="countdown-text" [ngClass]="g.deadlines?.daysRemaining <= 3 ? 'urgent' : ''">
+                <mat-icon>timer</mat-icon>
+                <strong>{{ g.deadlines?.daysRemaining }} Days</strong>
+              </div>
+              <span class="deadline-date">{{ g.deadlines?.currentDeadline | date:'shortDate' }}</span>
+            </div>
+            <div *ngIf="g.currentStep === 'SETTLED' || g.currentStep === 'CLOSED'">
+              <span class="badge badge-success">COMPLETED</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Actions -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Actions</th>
+          <td mat-cell *matCellDef="let g">
+            <div class="action-buttons">
+              <a mat-stroked-button color="primary" [routerLink]="['/grievances', g.id]">
+                Manage Case
+              </a>
+              <button mat-icon-button (click)="downloadPdf(g.id, $event)" matTooltip="Download Official PDF Form">
+                <mat-icon color="accent">picture_as_pdf</mat-icon>
+              </button>
+            </div>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="columns"></tr>
+        <tr mat-row *matRowDef="let row; columns: columns;" [routerLink]="['/grievances', row.id]"></tr>
+      </table>
+    </div>
+  </mat-card>

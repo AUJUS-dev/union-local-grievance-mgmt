@@ -1,0 +1,173 @@
+.register-wrapper {
+  min-height: calc(100vh - 68px - 4rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem 0;
+}
+
+.register-card-container {
+  width: 100%;
+  max-width: 480px;
+}
+
+.register-card {
+  border-radius: 1.25rem !important;
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1) !important;
+  padding: 1.25rem;
+}
+
+.card-header {
+  text-align: center;
+  padding: 1rem 1rem 1.25rem;
+
+  h2 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    margin: 0.75rem 0 0;
+    color: #0f172a;
+    letter-spacing: -0.025em;
+  }
+
+  .subtitle {
+    color: #64748b;
+    font-size: 0.9rem;
+    margin: 0.35rem 0 0;
+  }
+}
+
+.union-badge {
+  width: 52px;
+  height: 52px;
+  background: #1e3a8a;
+  color: #60a5fa;
+  border-radius: 14px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 6px -1px rgb(30 58 138 / 0.25);
+  border: 1px solid #3b82f6;
+
+  mat-icon {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+  }
+}
+
+.error-banner {
+  background: #fee2e2;
+  border: 1px solid #f87171;
+  color: #991b1b;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.875rem;
+}
+
+.sso-instruction {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 0.75rem;
+  text-align: center;
+}
+
+.oauth-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin-bottom: 1.25rem;
+}
+
+.sso-btn {
+  height: 52px !important;
+  border-radius: 10px !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  padding: 0 1.5rem !important;
+  transition: all 0.15s ease-in-out !important;
+
+  ::ng-deep .mdc-button__label {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+  }
+
+  .btn-inner {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    line-height: 1;
+  }
+
+  .provider-icon {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+    display: block;
+  }
+
+  .btn-text {
+    line-height: 1;
+    display: inline-block;
+  }
+
+  &.google-btn {
+    background-color: #ffffff !important;
+    color: #1e293b !important;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05) !important;
+
+    &:hover {
+      background-color: #f8fafc !important;
+      border-color: #94a3b8 !important;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1) !important;
+    }
+  }
+
+  &.apple-btn {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+
+    &:hover {
+      background-color: #1e293b !important;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.2) !important;
+    }
+  }
+}
+
+.member-role-note {
+  display: flex;
+  gap: 0.5rem;
+  background: #f1f5f9;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  color: #475569;
+  line-height: 1.4;
+  margin-bottom: 1rem;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: #2563eb;
+    flex-shrink: 0;
+  }
+}
+
+.card-footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 1rem;
+  color: #64748b;
+  font-size: 0.875rem;
+}

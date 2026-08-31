@@ -1,0 +1,145 @@
+.tab-padding {
+  padding: 1.5rem;
+}
+
+.tab-header-desc {
+  margin-bottom: 1.5rem;
+
+  h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #0f172a;
+  }
+
+  p {
+    margin: 0.25rem 0 0;
+    color: #64748b;
+    font-size: 0.9rem;
+  }
+}
+
+.user-cell {
+  display: flex;
+  flex-direction: column;
+
+  .u-name {
+    font-weight: 600;
+    color: #0f172a;
+  }
+
+  .u-email {
+    font-size: 0.8rem;
+    color: #64748b;
+  }
+}
+
+.unit-sub {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.role-action-cell {
+  display: flex;
+  align-items: center;
+
+  .compact-select {
+    width: 150px;
+    margin-bottom: -1.25rem;
+  }
+}
+
+.cba-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 1.5rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.cba-config-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1.25rem;
+
+  h4 {
+    margin: 0 0 1rem;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  .timeline-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 0.875rem;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    span {
+      color: #475569;
+    }
+
+    strong {
+      color: #1e3a8a;
+    }
+  }
+}
+
+.cba-articles-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  h4 {
+    margin: 0 0 0.5rem;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+}
+
+.art-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1rem;
+
+  .art-top {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.35rem;
+  }
+
+  .art-badge {
+    background: #1e3a8a;
+    color: white;
+    font-weight: 700;
+    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+  }
+
+  .art-cat {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #64748b;
+  }
+
+  h5 {
+    margin: 0.25rem 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.825rem;
+    color: #475569;
+  }
+}

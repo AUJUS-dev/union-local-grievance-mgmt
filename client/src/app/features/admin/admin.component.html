@@ -1,0 +1,125 @@
+<div class="page-header">
+    <div>
+      <h1>Union Administration & Roles</h1>
+      <p class="subtitle">Manage user privileges, assign stewards to bargaining units, and review CBA rules</p>
+    </div>
+  </div>
+
+  <mat-card class="card-modern mb-6">
+    <mat-tab-group>
+      <!-- TAB 1: User & Steward Management -->
+      <mat-tab label="Users & Role Assignment">
+        <div class="tab-padding">
+          <div class="tab-header-desc">
+            <h3>Member & Steward Directory</h3>
+            <p>New users are automatically assigned the <strong>Member</strong> role upon registration. Elevate users to <strong>Steward</strong> or <strong>Admin</strong> below.</p>
+          </div>
+
+          <mat-progress-bar *ngIf="isLoading()" mode="indeterminate" class="mb-4"></mat-progress-bar>
+
+          <div class="table-container">
+            <table mat-table [dataSource]="users()" class="mat-elevation-z0">
+              <!-- Name & Email -->
+              <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef>User Details</th>
+                <td mat-cell *matCellDef="let u">
+                  <div class="user-cell">
+                    <span class="u-name">{{ u.displayName || 'Unnamed User' }}</span>
+                    <span class="u-email">{{ u.email }}</span>
+                  </div>
+                </td>
+              </ng-container>
+
+              <!-- Member ID & Unit -->
+              <ng-container matColumnDef="info">
+                <th mat-header-cell *matHeaderCellDef>Local & Unit</th>
+                <td mat-cell *matCellDef="let u">
+                  <span>{{ u.localNumber || 'Local 1118' }}</span>
+                  <span class="unit-sub" *ngIf="u.bargainingUnitId">&bull; {{ u.bargainingUnitId }}</span>
+                </td>
+              </ng-container>
+
+              <!-- Current Role -->
+              <ng-container matColumnDef="role">
+                <th mat-header-cell *matHeaderCellDef>Current Role</th>
+                <td mat-cell *matCellDef="let u">
+                  <span 
+                    class="badge" 
+                    [ngClass]="{
+                      'badge-danger': u.role === 'admin',
+                      'badge-warning': u.role === 'steward',
+                      'badge-primary': u.role === 'member'
+                    }">
+                    {{ u.role | uppercase }}
+                  </span>
+                </td>
+              </ng-container>
+
+              <!-- Change Role Action -->
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef>Elevate / Change Role</th>
+                <td mat-cell *matCellDef="let u">
+                  <div class="role-action-cell">
+                    <mat-form-field appearance="outline" class="compact-select">
+                      <mat-select [value]="u.role" (selectionChange)="updateUserRole(u.uid, $event.value)">
+                        <mat-option value="member">Member</mat-option>
+                        <mat-option value="steward">Shop Steward</mat-option>
+                        <mat-option value="admin">Union Admin</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="userColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: userColumns;"></tr>
+            </table>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- TAB 2: CBA Articles & Rules -->
+      <mat-tab label="CBA Contract & Deadlines">
+        <div class="tab-padding">
+          <div class="tab-header-desc">
+            <h3>Master Collective Bargaining Agreement (Local 1118)</h3>
+            <p>Contractually defined deadline countdowns and active grievance articles.</p>
+          </div>
+
+          <div class="cba-grid">
+            <div class="cba-config-box">
+              <h4>Contractual Timelines</h4>
+              <div class="timeline-row">
+                <span>Step 1 Filing Deadline:</span>
+                <strong>10 Business Days from Incident</strong>
+              </div>
+              <div class="timeline-row">
+                <span>Step 2 Employer Response:</span>
+                <strong>5 Business Days</strong>
+              </div>
+              <div class="timeline-row">
+                <span>Step 3 Mediation Window:</span>
+                <strong>15 Business Days</strong>
+              </div>
+              <div class="timeline-row">
+                <span>Arbitration Demand:</span>
+                <strong>30 Calendar Days</strong>
+              </div>
+            </div>
+
+            <div class="cba-articles-box">
+              <h4>Active CBA Articles & Categories</h4>
+              <div *ngFor="let art of cbaService.articles()" class="art-card">
+                <div class="art-top">
+                  <span class="art-badge">{{ art.articleNumber }}</span>
+                  <span class="art-cat">{{ art.category }}</span>
+                </div>
+                <h5>{{ art.title }}</h5>
+                <p>{{ art.description }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </mat-card>

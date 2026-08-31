@@ -1,0 +1,246 @@
+<!-- Welcome Banner -->
+  <div class="welcome-header">
+    <div class="header-left">
+      <h1>Welcome back, {{ auth.userProfile()?.displayName || 'Union Member' }}</h1>
+      <p class="subtitle">
+        CWA Local 1118 Grievance Management & Contract Enforcement System
+      </p>
+    </div>
+    <div class="header-actions">
+      <a mat-flat-button color="primary" routerLink="/grievances/create" class="action-btn">
+        <mat-icon>add</mat-icon> File New Grievance
+      </a>
+      <a mat-stroked-button routerLink="/grievances" class="action-btn">
+        <mat-icon>search</mat-icon> Browse All
+      </a>
+    </div>
+  </div>
+
+  <mat-progress-bar *ngIf="grievanceService.isLoading()" mode="indeterminate" class="mb-4"></mat-progress-bar>
+
+  <!-- KPI Metrics Grid -->
+  <div class="metrics-grid">
+    <div class="stat-card">
+      <div class="stat-icon" style="background-color: #dbeafe; color: #1d4ed8;">
+        <mat-icon>folder_open</mat-icon>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">Total Grievances</div>
+        <div class="stat-value">{{ totalCount() }}</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon" style="background-color: #e0e7ff; color: #4338ca;">
+        <mat-icon>chat</mat-icon>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">Step 1 (Informal)</div>
+        <div class="stat-value">{{ step1Count() }}</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon" style="background-color: #fef3c7; color: #b45309;">
+        <mat-icon>description</mat-icon>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">Step 2 (Formal)</div>
+        <div class="stat-value">{{ step2Count() }}</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon" style="background-color: #ffedd5; color: #c2410c;">
+        <mat-icon>handshake</mat-icon>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">Step 3 (Mediation)</div>
+        <div class="stat-value">{{ step3Count() }}</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon" style="background-color: #fee2e2; color: #b91c1c;">
+        <mat-icon>balance</mat-icon>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">Step 4 (Arbitration)</div>
+        <div class="stat-value">{{ step4Count() }}</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon" style="background-color: #dcfce7; color: #15803d;">
+        <mat-icon>check_circle</mat-icon>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">Settled / Won</div>
+        <div class="stat-value">{{ settledCount() }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Two-Column Layout -->
+  <div class="dashboard-columns">
+    <!-- Left: Urgent Action & Impending Deadlines -->
+    <div class="column-main">
+      <mat-card class="card-modern mb-6">
+        <div class="section-title-row">
+          <div class="title-with-icon">
+            <mat-icon color="warn">alarm</mat-icon>
+            <h2>Impending Contractual Deadlines</h2>
+          </div>
+          <span class="badge badge-warning" *ngIf="urgentGrievances().length > 0">
+            {{ urgentGrievances().length }} Require Action
+          </span>
+        </div>
+
+        <div *ngIf="urgentGrievances().length === 0" class="empty-state">
+          <mat-icon>verified</mat-icon>
+          <p>All grievance responses and escalation deadlines are up to date.</p>
+        </div>
+
+        <div class="table-container" *ngIf="urgentGrievances().length > 0">
+          <table mat-table [dataSource]="urgentGrievances()" class="mat-elevation-z0">
+            <!-- Grievance Number -->
+            <ng-container matColumnDef="grievanceNumber">
+              <th mat-header-cell *matHeaderCellDef>Case #</th>
+              <td mat-cell *matCellDef="let g">
+                <strong>{{ g.grievanceNumber }}</strong>
+              </td>
+            </ng-container>
+
+            <!-- Title -->
+            <ng-container matColumnDef="title">
+              <th mat-header-cell *matHeaderCellDef>Title & Member</th>
+              <td mat-cell *matCellDef="let g">
+                <div class="title-cell">
+                  <span class="cell-primary">{{ g.title }}</span>
+                  <span class="cell-sub">{{ g.memberName }} &bull; {{ g.bargainingUnitName }}</span>
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Step -->
+            <ng-container matColumnDef="currentStep">
+              <th mat-header-cell *matHeaderCellDef>Current Step</th>
+              <td mat-cell *matCellDef="let g">
+                <span class="step-chip" [ngClass]="getStepClass(g.currentStep)">
+                  {{ formatStep(g.currentStep) }}
+                </span>
+              </td>
+            </ng-container>
+
+            <!-- Deadline -->
+            <ng-container matColumnDef="deadline">
+              <th mat-header-cell *matHeaderCellDef>Deadline & Countdown</th>
+              <td mat-cell *matCellDef="let g">
+                <div class="deadline-pill" [ngClass]="g.deadlines?.daysRemaining <= 3 ? 'urgent' : 'warning'">
+                  <mat-icon>schedule</mat-icon>
+                  <span>{{ g.deadlines?.daysRemaining }} Days Remaining</span>
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Action -->
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let g">
+                <a mat-icon-button [routerLink]="['/grievances', g.id]" color="primary">
+                  <mat-icon>arrow_forward</mat-icon>
+                </a>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;" [routerLink]="['/grievances', row.id]"></tr>
+          </table>
+        </div>
+      </mat-card>
+
+      <!-- Recent Active Grievances -->
+      <mat-card class="card-modern">
+        <div class="section-title-row">
+          <div class="title-with-icon">
+            <mat-icon color="primary">assignment</mat-icon>
+            <h2>Recent Active Grievances</h2>
+          </div>
+          <a mat-button color="primary" routerLink="/grievances">View All &rarr;</a>
+        </div>
+
+        <div class="grievance-cards-list">
+          <div *ngFor="let g of recentGrievances()" class="grievance-item-card" [routerLink]="['/grievances', g.id]">
+            <div class="item-header">
+              <div class="flex items-center gap-2">
+                <span class="case-number">{{ g.grievanceNumber }}</span>
+                <span class="step-chip" [ngClass]="getStepClass(g.currentStep)">
+                  {{ formatStep(g.currentStep) }}
+                </span>
+              </div>
+              <span class="badge" [ngClass]="getPriorityClass(g.priority)">
+                {{ g.priority }} PRIORITY
+              </span>
+            </div>
+            <div class="item-title">{{ g.title }}</div>
+            <div class="item-meta">
+              <span><strong>Member:</strong> {{ g.memberName }}</span>
+              <span><strong>Steward:</strong> {{ g.assignedStewardName || 'Unassigned' }}</span>
+              <span><strong>Filed:</strong> {{ g.filingDate | date:'mediumDate' }}</span>
+            </div>
+          </div>
+        </div>
+      </mat-card>
+    </div>
+
+    <!-- Right: Contract Information & Quick Tools -->
+    <div class="column-sidebar">
+      <mat-card class="card-modern mb-6">
+        <div class="title-with-icon mb-4">
+          <mat-icon color="primary">menu_book</mat-icon>
+          <h2>CBA Quick Reference</h2>
+        </div>
+        <div class="cba-card-info">
+          <div class="contract-badge">Local 1118 Master Agreement</div>
+          <p class="cba-exp">Effective: <strong>2024 - 2028</strong></p>
+          
+          <div class="cba-rule-list">
+            <div class="rule-item">
+              <div class="rule-title">Step 1 Informal Filing</div>
+              <div class="rule-val">Within 10 days of incident</div>
+            </div>
+            <div class="rule-item">
+              <div class="rule-title">Step 2 Formal Escalation</div>
+              <div class="rule-val">5 days from supervisor response</div>
+            </div>
+            <div class="rule-item">
+              <div class="rule-title">Step 3 Mediation Request</div>
+              <div class="rule-val">15 business days</div>
+            </div>
+            <div class="rule-item">
+              <div class="rule-title">Arbitration Notice</div>
+              <div class="rule-val">30 calendar days</div>
+            </div>
+          </div>
+        </div>
+      </mat-card>
+
+      <mat-card class="card-modern">
+        <div class="title-with-icon mb-4">
+          <mat-icon color="accent">help_outline</mat-icon>
+          <h2>Union Representation</h2>
+        </div>
+        <div class="help-box">
+          <p>Need assistance preparing an investigation or filing witness statements?</p>
+          <div class="contact-row">
+            <mat-icon>phone</mat-icon>
+            <span>Union Hall: (313) 555-0199</span>
+          </div>
+          <div class="contact-row">
+            <mat-icon>email</mat-icon>
+            <span>stewards&#64;unionlocal.org</span>
+          </div>
+        </div>
+      </mat-card>
+    </div>
+  </div>
