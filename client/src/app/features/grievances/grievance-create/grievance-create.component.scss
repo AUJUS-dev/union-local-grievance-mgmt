@@ -1,5 +1,9 @@
 .wizard-card {
   padding: 2rem !important;
+
+  @media (max-width: 768px) {
+    padding: 1rem !important;
+  }
 }
 
 .back-link {
@@ -15,6 +19,10 @@
     font-weight: 700;
     margin: 0;
     color: #0f172a;
+
+    @media (max-width: 600px) {
+      font-size: 1.1rem;
+    }
   }
 
   p {
@@ -31,6 +39,7 @@
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
+    gap: 0.75rem;
   }
 }
 
@@ -41,6 +50,7 @@
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
+    gap: 0.75rem;
   }
 }
 
@@ -50,6 +60,10 @@
   border-radius: 8px;
   padding: 1.25rem;
   margin-bottom: 1.5rem;
+
+  @media (max-width: 600px) {
+    padding: 0.875rem;
+  }
 
   h4 {
     font-size: 0.95rem;
@@ -84,6 +98,14 @@
   justify-content: space-between;
   align-items: center;
   margin-top: 2rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+
+  @media (max-width: 600px) {
+    button {
+      flex: 1 1 auto;
+    }
+  }
 }
 
 .review-card {
@@ -91,6 +113,10 @@
   border: 1px solid #e2e8f0;
   border-radius: 8px;
   padding: 1.5rem;
+
+  @media (max-width: 600px) {
+    padding: 0.875rem;
+  }
 }
 
 .review-row {
@@ -98,6 +124,13 @@
   grid-template-columns: 200px 1fr;
   padding: 0.65rem 0;
   border-bottom: 1px solid #e2e8f0;
+  gap: 0.5rem;
+
+  @media (max-width: 680px) {
+    grid-template-columns: 1fr;
+    gap: 0.15rem;
+    padding: 0.5rem 0;
+  }
 
   &:last-child {
     border-bottom: none;
@@ -112,6 +145,7 @@
   .review-val {
     font-size: 0.9rem;
     color: #0f172a;
+    word-break: break-word;
   }
 }
 
@@ -129,4 +163,8 @@
   font-size: 1rem;
   padding: 0.5rem 1.5rem;
   height: 48px;
+
+  @media (max-width: 600px) {
+    width: 100%;
+  }
 }

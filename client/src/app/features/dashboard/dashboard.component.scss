@@ -11,11 +11,21 @@
   border: 1px solid var(--border-color);
   box-shadow: var(--shadow-sm);
 
+  @media (max-width: 768px) {
+    padding: 1rem;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
   .header-left h1 {
     font-size: 1.6rem;
     font-weight: 800;
     margin: 0;
     color: #0f172a;
+
+    @media (max-width: 600px) {
+      font-size: 1.25rem;
+    }
   }
 
   .subtitle {
@@ -27,6 +37,15 @@
   .header-actions {
     display: flex;
     gap: 0.75rem;
+    flex-wrap: wrap;
+
+    @media (max-width: 600px) {
+      width: 100%;
+
+      .action-btn {
+        flex: 1 1 auto;
+      }
+    }
   }
 }
 
@@ -35,15 +54,69 @@
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1.25rem;
   margin-bottom: 2rem;
+
+  @media (max-width: 600px) {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
 }
 
 .dashboard-columns {
   display: grid;
   grid-template-columns: 2.2fr 1fr;
   gap: 1.5rem;
+  min-width: 0;
+  max-width: 100%;
 
   @media (max-width: 1024px) {
     grid-template-columns: 1fr;
+  }
+}
+
+.column-main {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.column-sidebar {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.card-modern {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+
+  @media (max-width: 600px) {
+    padding: 1rem;
+  }
+}
+
+.table-container {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  display: block;
+  margin: 0 -0.5rem;
+  padding: 0 0.5rem 0.5rem;
+
+  @media (max-width: 600px) {
+    margin: 0 -1rem;
+    padding: 0 1rem 0.5rem;
+  }
+
+  table {
+    min-width: 600px;
+    width: 100%;
+  }
+
+  th.mat-mdc-header-cell,
+  td.mat-mdc-cell {
+    white-space: nowrap;
+    padding: 0.75rem 0.5rem;
   }
 }
 
