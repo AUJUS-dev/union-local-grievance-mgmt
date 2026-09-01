@@ -11,7 +11,7 @@
   <mat-card class="card-modern wizard-card">
     <mat-progress-bar *ngIf="isSubmitting()" mode="indeterminate"></mat-progress-bar>
 
-    <mat-stepper [linear]="true" #stepper>
+    <mat-stepper [linear]="true" [orientation]="stepperOrientation()" #stepper>
       <!-- STEP 1: Parties & Work Location -->
       <mat-step [stepControl]="partiesForm">
         <ng-template matStepLabel>Parties & Unit</ng-template>

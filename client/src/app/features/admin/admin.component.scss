@@ -1,5 +1,19 @@
 .tab-padding {
   padding: 1.5rem;
+
+  @media (max-width: 600px) {
+    padding: 0.875rem 0.5rem;
+  }
+}
+
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+
+  table {
+    min-width: 580px;
+  }
 }
 
 .tab-header-desc {

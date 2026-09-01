@@ -3,8 +3,14 @@
   display: flex;
   flex-direction: column;
   background-color: var(--bg-main);
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
 }
 
 .main-content {
   flex: 1;
+  min-width: 0;
+  max-width: 100%;
+  width: 100%;
 }

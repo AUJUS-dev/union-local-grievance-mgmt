@@ -133,9 +133,10 @@
               <div class="add-note-box" *ngIf="auth.isSteward() || auth.isAdmin()">
                 <h4>Add Confidential Steward Investigation Note</h4>
                 <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Confidential Steward Note</mat-label>
                   <textarea matInput rows="3" [(ngModel)]="newNoteContent" placeholder="Enter witness interview details, timeline facts, or employer statements..."></textarea>
                 </mat-form-field>
-                <div class="flex justify-between items-center">
+                <div class="flex justify-between items-center flex-wrap gap-2">
                   <span class="confidential-tag">
                     <mat-icon>lock</mat-icon> Confidential Union Note
                   </span>
@@ -194,8 +195,8 @@
 
         <!-- Escalate Step Action (When Active) -->
         <div class="action-block" *ngIf="!isCompleted()">
-          <label>Escalate Contractual Step:</label>
           <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Escalate Contractual Step</mat-label>
             <mat-select [value]="selectedNextStep()" (selectionChange)="selectedNextStep.set($event.value)">
               <mat-option value="STEP_2_FORMAL">Escalate to Step 2 (Formal HR)</mat-option>
               <mat-option value="STEP_3_MEDIATION">Escalate to Step 3 (Mediation)</mat-option>
@@ -210,8 +211,8 @@
             <textarea matInput rows="2" [(ngModel)]="stepTransitionNotes" placeholder="Reason for escalation or settlement terms..."></textarea>
           </mat-form-field>
 
-          <button mat-flat-button color="accent" class="full-width" (click)="escalateStep()">
-            Execute Step Transition
+          <button mat-flat-button color="primary" class="full-width action-submit-btn" (click)="escalateStep()">
+            <mat-icon>forward</mat-icon> Execute Step Transition
           </button>
         </div>
 
@@ -225,8 +226,8 @@
             Re-open this case back to an active contractual step in case of accidental closing or unmet settlement conditions.
           </p>
 
-          <label>Restore to Active Step:</label>
           <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Restore to Active Step</mat-label>
             <mat-select [value]="reopenTargetStep()" (selectionChange)="reopenTargetStep.set($event.value)">
               <mat-option value="STEP_1_INFORMAL">Step 1 (Informal Supervisor)</mat-option>
               <mat-option value="STEP_2_FORMAL">Step 2 (Formal HR Dept)</mat-option>
@@ -240,15 +241,15 @@
             <textarea matInput rows="2" [(ngModel)]="reopenNotes" placeholder="e.g. Accidental closing, settlement terms violated by employer..."></textarea>
           </mat-form-field>
 
-          <button mat-flat-button color="warn" class="full-width" (click)="reopenGrievance()">
+          <button mat-flat-button color="warn" class="full-width action-submit-btn" (click)="reopenGrievance()">
             <mat-icon>lock_open</mat-icon> Re-open Grievance
           </button>
         </div>
 
         <!-- Assign Steward (Only Visible on Open Cases) -->
         <div class="action-block mt-4" *ngIf="!isCompleted()">
-          <label>Assign Union Steward:</label>
           <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Assign Union Steward</mat-label>
             <mat-select [value]="grievance()!.assignedStewardUid || 'steward-uid-001'" (selectionChange)="assignSteward($event.value)">
               <mat-option value="steward-uid-001">Marcus Brody (Chief Steward)</mat-option>
               <mat-option value="admin-uid-001">Sarah Connor (Admin Officer)</mat-option>

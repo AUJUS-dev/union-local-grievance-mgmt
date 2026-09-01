@@ -1,9 +1,11 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { BreakpointObserver } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
-import { MatStepperModule } from '@angular/material/stepper';
+import { MatStepperModule, StepperOrientation } from '@angular/material/stepper';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -14,6 +16,7 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatTimepickerModule } from '@angular/material/timepicker';
+import { map } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
 import { GrievanceService } from '../../../core/services/grievance.service';
 import { CBAService } from '../../../core/services/cba.service';
@@ -48,6 +51,14 @@ export class GrievanceCreateComponent implements OnInit {
   private grievanceService = inject(GrievanceService);
   private cbaService = inject(CBAService);
   private router = inject(Router);
+  private breakpointObserver = inject(BreakpointObserver);
+
+  public readonly stepperOrientation = toSignal(
+    this.breakpointObserver
+      .observe('(max-width: 800px)')
+      .pipe(map(({ matches }) => (matches ? 'vertical' : 'horizontal') as StepperOrientation)),
+    { initialValue: 'horizontal' as StepperOrientation }
+  );
 
   public isSubmitting = signal(false);
   public selectedArticles: CBAArticle[] = [];
