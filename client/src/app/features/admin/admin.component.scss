@@ -1,3 +1,5 @@
+@use "@angular/material" as mat;
+
 .tab-padding {
   padding: 1.5rem;
 
@@ -12,7 +14,58 @@
   -webkit-overflow-scrolling: touch;
 
   table {
-    min-width: 580px;
+    min-width: 620px;
+    width: 100%;
+  }
+
+  tr.mat-mdc-row,
+  .mat-mdc-row {
+    height: 76px !important;
+    min-height: 76px !important;
+    cursor: default;
+  }
+
+  tr.mat-mdc-header-row,
+  .mat-mdc-header-row {
+    height: 52px !important;
+  }
+
+  td.mat-mdc-cell,
+  .mat-mdc-cell {
+    height: 76px !important;
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+    vertical-align: middle !important;
+  }
+
+  th.mat-mdc-header-cell,
+  .mat-mdc-header-cell {
+    vertical-align: middle !important;
+  }
+}
+
+:host ::ng-deep {
+  .table-container {
+    tr.mat-mdc-row,
+    .mat-mdc-row {
+      height: 76px !important;
+      min-height: 76px !important;
+      cursor: default !important;
+    }
+
+    td.mat-mdc-cell,
+    .mat-mdc-cell {
+      height: 76px !important;
+      padding-top: 0.5rem !important;
+      padding-bottom: 0.5rem !important;
+      vertical-align: middle !important;
+    }
+  }
+
+  .role-action-cell {
+    .mat-mdc-form-field-subscript-wrapper {
+      display: none;
+    }
   }
 }
 
@@ -56,10 +109,12 @@
 .role-action-cell {
   display: flex;
   align-items: center;
+  padding: 0;
 
   .compact-select {
-    width: 150px;
-    margin-bottom: -1.25rem;
+    width: 200px;
+    margin: 0;
+    @include mat.form-field-density(-3);
   }
 }
 
