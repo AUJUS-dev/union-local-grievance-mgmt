@@ -1,19 +1,21 @@
-@use '@angular/material' as mat;
+@use "@angular/material" as mat;
 
-$theme: mat.define-theme((
-  color: (
-    theme-type: light,
-    primary: mat.$azure-palette,
-    tertiary: mat.$blue-palette,
-  ),
-  typography: (
-    plain-family: 'Inter, system-ui, -apple-system, sans-serif',
-    brand-family: 'Inter, system-ui, -apple-system, sans-serif',
-  ),
-  density: (
-    scale: 0
+$theme: mat.define-theme(
+  (
+    color: (
+      theme-type: light,
+      primary: mat.$azure-palette,
+      tertiary: mat.$blue-palette,
+    ),
+    typography: (
+      plain-family: "Inter, system-ui, -apple-system, sans-serif",
+      brand-family: "Inter, system-ui, -apple-system, sans-serif",
+    ),
+    density: (
+      scale: 0,
+    ),
   )
-));
+);
 
 @include mat.core();
 
@@ -23,8 +25,8 @@ html {
 
 // Define custom theme colors
 $primary-color: #1e3a8a; // Navy Blue (Solidarity & Union Strength)
-$accent-color: #0284c7;  // Light Blue / Cyan
-$warn-color: #dc2626;    // Crimson Alert
+$accent-color: #0284c7; // Light Blue / Cyan
+$warn-color: #dc2626; // Crimson Alert
 $success-color: #16a34a; // Green
 $warning-color: #ea580c; // Amber / Orange
 
@@ -37,27 +39,36 @@ $warning-color: #ea580c; // Amber / Orange
   --success: #16a34a;
   --warning: #d97706;
   --danger: #dc2626;
-  
+
   --bg-main: #f8fafc;
   --bg-card: #ffffff;
   --bg-header: #0f172a;
-  
+
   --text-main: #0f172a;
   --text-muted: #64748b;
   --border-color: #e2e8f0;
-  
+
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-lg:
+    0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
 }
 
-html, body {
+html,
+body {
   min-height: 100%;
   margin: 0;
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family:
+    "Inter",
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
   background-color: var(--bg-main);
   color: var(--text-main);
   -webkit-font-smoothing: antialiased;
@@ -121,12 +132,30 @@ html, body {
   font-weight: 600;
   display: inline-block;
 
-  &.step-1 { background-color: #e0e7ff; color: #3730a3; }
-  &.step-2 { background-color: #fef3c7; color: #92400e; }
-  &.step-3 { background-color: #ffedd5; color: #9a3412; }
-  &.step-4 { background-color: #fee2e2; color: #991b1b; }
-  &.step-settled { background-color: #dcfce7; color: #166534; }
-  &.step-closed { background-color: #f1f5f9; color: #475569; }
+  &.step-1 {
+    background-color: #e0e7ff;
+    color: #3730a3;
+  }
+  &.step-2 {
+    background-color: #fef3c7;
+    color: #92400e;
+  }
+  &.step-3 {
+    background-color: #ffedd5;
+    color: #9a3412;
+  }
+  &.step-4 {
+    background-color: #fee2e2;
+    color: #991b1b;
+  }
+  &.step-settled {
+    background-color: #dcfce7;
+    color: #166534;
+  }
+  &.step-closed {
+    background-color: #f1f5f9;
+    color: #475569;
+  }
 }
 
 // Container & Layout utilities
@@ -244,6 +273,33 @@ html, body {
 .mat-mdc-table {
   background: transparent !important;
   width: 100%;
+}
+
+.mat-mdc-table.admin-table {
+  .mat-mdc-row,
+  tr.mat-mdc-row {
+    height: 68px !important;
+    min-height: 68px !important;
+    cursor: default;
+  }
+
+  .mat-mdc-cell,
+  td.mat-mdc-cell {
+    height: 68px !important;
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+    vertical-align: middle !important;
+  }
+}
+
+.compact-select {
+  width: 200px !important;
+  margin: 0 !important;
+  @include mat.form-field-density(-3);
+
+  .mat-mdc-form-field-subscript-wrapper {
+    display: none !important;
+  }
 }
 
 .mat-mdc-row:hover {
@@ -421,18 +477,48 @@ mat-form-field,
 }
 
 // Spacing helpers
-.mt-1 { margin-top: 0.25rem; }
-.mt-2 { margin-top: 0.5rem; }
-.mt-3 { margin-top: 0.75rem; }
-.mt-4 { margin-top: 1rem; }
-.mt-6 { margin-top: 1.5rem; }
-.mb-4 { margin-bottom: 1rem; }
-.mb-6 { margin-bottom: 1.5rem; }
-.gap-2 { gap: 0.5rem; }
-.gap-3 { gap: 0.75rem; }
-.gap-4 { gap: 1rem; }
-.flex { display: flex; }
-.items-center { align-items: center; }
-.justify-between { justify-content: space-between; }
-.flex-1 { flex: 1; }
-.flex-wrap { flex-wrap: wrap; }
+.mt-1 {
+  margin-top: 0.25rem;
+}
+.mt-2 {
+  margin-top: 0.5rem;
+}
+.mt-3 {
+  margin-top: 0.75rem;
+}
+.mt-4 {
+  margin-top: 1rem;
+}
+.mt-6 {
+  margin-top: 1.5rem;
+}
+.mb-4 {
+  margin-bottom: 1rem;
+}
+.mb-6 {
+  margin-bottom: 1.5rem;
+}
+.gap-2 {
+  gap: 0.5rem;
+}
+.gap-3 {
+  gap: 0.75rem;
+}
+.gap-4 {
+  gap: 1rem;
+}
+.flex {
+  display: flex;
+}
+.items-center {
+  align-items: center;
+}
+.justify-between {
+  justify-content: space-between;
+}
+.flex-1 {
+  flex: 1;
+}
+.flex-wrap {
+  flex-wrap: wrap;
+}
