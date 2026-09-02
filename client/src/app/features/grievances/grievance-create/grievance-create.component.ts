@@ -2,10 +2,18 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
-import { MatStepperModule, StepperOrientation } from '@angular/material/stepper';
+import {
+  MatStepperModule,
+  StepperOrientation,
+} from '@angular/material/stepper';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -40,10 +48,10 @@ import { CBAArticle, Grievance } from '@union-local/shared';
     MatRadioModule,
     MatProgressBarModule,
     MatDatepickerModule,
-    MatTimepickerModule
+    MatTimepickerModule,
   ],
   templateUrl: './grievance-create.component.html',
-  styleUrl: './grievance-create.component.scss'
+  styleUrl: './grievance-create.component.scss',
 })
 export class GrievanceCreateComponent implements OnInit {
   private fb = inject(FormBuilder);
@@ -56,8 +64,13 @@ export class GrievanceCreateComponent implements OnInit {
   public readonly stepperOrientation = toSignal(
     this.breakpointObserver
       .observe('(max-width: 800px)')
-      .pipe(map(({ matches }) => (matches ? 'vertical' : 'horizontal') as StepperOrientation)),
-    { initialValue: 'horizontal' as StepperOrientation }
+      .pipe(
+        map(
+          ({ matches }) =>
+            (matches ? 'vertical' : 'horizontal') as StepperOrientation,
+        ),
+      ),
+    { initialValue: 'horizontal' as StepperOrientation },
   );
 
   public isSubmitting = signal(false);
@@ -69,29 +82,33 @@ export class GrievanceCreateComponent implements OnInit {
       title: 'Discipline and Discharge',
       section: 'Section 8.2 (Just Cause Standard)',
       category: 'Discipline',
-      description: 'No employee shall be disciplined or discharged without just cause.'
+      description:
+        'No employee shall be disciplined or discharged without just cause.',
     },
     {
       articleNumber: 'Article 14',
       title: 'Overtime Allocation & Premium Pay',
       section: 'Section 14.4 (Equalization Rotation)',
       category: 'Overtime',
-      description: 'Equitable distribution of overtime by seniority and classification.'
+      description:
+        'Equitable distribution of overtime by seniority and classification.',
     },
     {
       articleNumber: 'Article 19',
       title: 'Health and Safety Standards',
       section: 'Section 19.1 (PPE and Hazard Abatement)',
       category: 'Health & Safety',
-      description: 'Employer must provide required PPE and maintain safe conditions.'
+      description:
+        'Employer must provide required PPE and maintain safe conditions.',
     },
     {
       articleNumber: 'Article 22',
       title: 'Seniority and Job Bidding',
       section: 'Section 22.3 (Shift Selection)',
       category: 'Seniority',
-      description: 'Preference for vacant shifts and job postings granted by seniority.'
-    }
+      description:
+        'Preference for vacant shifts and job postings granted by seniority.',
+    },
   ];
 
   public partiesForm: FormGroup = this.fb.group({
@@ -100,11 +117,11 @@ export class GrievanceCreateComponent implements OnInit {
     bargainingUnitId: ['unit-main-mfg', Validators.required],
     employerName: ['Acme Heavy Industries', Validators.required],
     memberDepartment: ['Operations'],
-    supervisorName: ['', Validators.required]
+    supervisorName: ['', Validators.required],
   });
 
   public incidentForm: FormGroup = this.fb.group({
-    priority: ['MEDIUM', Validators.required]
+    priority: ['MEDIUM', Validators.required],
   });
 
   private getDefaultNoonTime(): Date {
@@ -118,22 +135,33 @@ export class GrievanceCreateComponent implements OnInit {
     incidentDate: [new Date(), Validators.required],
     incidentTime: [this.getDefaultNoonTime()],
     description: ['', Validators.required],
-    remedyRequested: ['Make the grievant whole in every respect, including all lost wages and benefits.', Validators.required]
+    remedyRequested: [
+      'Make the grievant whole in every respect, including all lost wages and benefits.',
+      Validators.required,
+    ],
   });
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     const profile = this.auth.userProfile();
     if (profile) {
       this.partiesForm.patchValue({
         memberName: profile.displayName,
         memberId: profile.memberId || 'MEM-8842',
-        bargainingUnitId: profile.bargainingUnitId || 'unit-main-mfg'
+        bargainingUnitId: profile.bargainingUnitId || 'unit-main-mfg',
       });
+    }
+
+    await this.cbaService.loadCBAData();
+    const cbaArticles = this.cbaService.articles();
+    if (cbaArticles && cbaArticles.length > 0) {
+      this.availableArticles = cbaArticles;
     }
   }
 
   public isArticleSelected(art: CBAArticle): boolean {
-    return this.selectedArticles.some(a => a.articleNumber === art.articleNumber);
+    return this.selectedArticles.some(
+      (a) => a.articleNumber === art.articleNumber,
+    );
   }
 
   public toggleArticle(art: CBAArticle, isChecked: boolean): void {
@@ -142,7 +170,9 @@ export class GrievanceCreateComponent implements OnInit {
         this.selectedArticles.push(art);
       }
     } else {
-      this.selectedArticles = this.selectedArticles.filter(a => a.articleNumber !== art.articleNumber);
+      this.selectedArticles = this.selectedArticles.filter(
+        (a) => a.articleNumber !== art.articleNumber,
+      );
     }
   }
 
@@ -155,40 +185,64 @@ export class GrievanceCreateComponent implements OnInit {
 
       let incidentDateISO: string;
       const rawDate = statement.incidentDate || incident.incidentDate;
-      const dateObj = rawDate instanceof Date ? new Date(rawDate) : (typeof rawDate === 'string' && rawDate ? new Date(rawDate) : new Date());
+      const dateObj =
+        rawDate instanceof Date
+          ? new Date(rawDate)
+          : typeof rawDate === 'string' && rawDate
+            ? new Date(rawDate)
+            : new Date();
 
       if (statement.incidentTime instanceof Date) {
-        dateObj.setHours(statement.incidentTime.getHours(), statement.incidentTime.getMinutes(), 0, 0);
-      } else if (typeof statement.incidentTime === 'string' && statement.incidentTime) {
+        dateObj.setHours(
+          statement.incidentTime.getHours(),
+          statement.incidentTime.getMinutes(),
+          0,
+          0,
+        );
+      } else if (
+        typeof statement.incidentTime === 'string' &&
+        statement.incidentTime
+      ) {
         const timeMatch = statement.incidentTime.match(/(\d+):(\d+)/);
         if (timeMatch) {
-          dateObj.setHours(parseInt(timeMatch[1], 10), parseInt(timeMatch[2], 10), 0, 0);
+          dateObj.setHours(
+            parseInt(timeMatch[1], 10),
+            parseInt(timeMatch[2], 10),
+            0,
+            0,
+          );
         }
       }
 
-      incidentDateISO = isNaN(dateObj.getTime()) ? new Date().toISOString() : dateObj.toISOString();
+      incidentDateISO = isNaN(dateObj.getTime())
+        ? new Date().toISOString()
+        : dateObj.toISOString();
 
       const grievancePayload: Partial<Grievance> = {
         title: statement.title,
         description: statement.description,
         incidentDate: incidentDateISO,
         bargainingUnitId: parties.bargainingUnitId,
-        bargainingUnitName: parties.bargainingUnitId === 'unit-main-mfg' ? 'Main Manufacturing Plant' : 'Regional Logistics Center',
+        bargainingUnitName:
+          parties.bargainingUnitId === 'unit-main-mfg'
+            ? 'Main Manufacturing Plant'
+            : 'Regional Logistics Center',
         employerName: parties.employerName,
         memberName: parties.memberName,
         memberId: parties.memberId,
         memberDepartment: parties.memberDepartment,
         supervisorName: parties.supervisorName,
-        violatedArticles: this.selectedArticles.map(a => ({
+        violatedArticles: this.selectedArticles.map((a) => ({
           articleNumber: a.articleNumber,
           title: a.title,
-          section: a.section
+          section: a.section,
         })),
         remedyRequested: statement.remedyRequested,
-        priority: incident.priority
+        priority: incident.priority,
       };
 
-      const newId = await this.grievanceService.createGrievance(grievancePayload);
+      const newId =
+        await this.grievanceService.createGrievance(grievancePayload);
       await this.router.navigate(['/grievances', newId]);
     } catch (err: any) {
       console.error('Error filing grievance:', err);
