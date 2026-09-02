@@ -116,45 +116,434 @@
     <!-- TAB 2: CBA Articles & Rules -->
     <mat-tab label="CBA Contract & Deadlines">
       <div class="tab-padding">
-        <div class="tab-header-desc">
-          <h3>Master Collective Bargaining Agreement (Local 1118)</h3>
-          <p>
-            Contractually defined deadline countdowns and active grievance
-            articles.
-          </p>
-        </div>
-
-        <div class="cba-grid">
-          <div class="cba-config-box">
-            <h4>Contractual Timelines</h4>
-            <div class="timeline-row">
-              <span>Step 1 Filing Deadline:</span>
-              <strong>10 Business Days from Incident</strong>
+        <!-- Contract Header & Selection Banner -->
+        <div
+          class="contract-banner mb-6"
+          *ngIf="cbaService.selectedContract() as contract"
+        >
+          <div class="banner-info">
+            <div class="banner-badges">
+              <span class="badge badge-primary">{{
+                contract.localNumber || "Local 1118"
+              }}</span>
+              <span class="badge badge-neutral">{{
+                contract.employerName || "Acme Heavy Industries"
+              }}</span>
+              <span class="contract-id-tag">ID: {{ contract.id }}</span>
             </div>
-            <div class="timeline-row">
-              <span>Step 2 Employer Response:</span>
-              <strong>5 Business Days</strong>
-            </div>
-            <div class="timeline-row">
-              <span>Step 3 Mediation Window:</span>
-              <strong>15 Business Days</strong>
-            </div>
-            <div class="timeline-row">
-              <span>Arbitration Demand:</span>
-              <strong>30 Calendar Days</strong>
-            </div>
+            <h3>{{ contract.title }}</h3>
+            <p
+              class="contract-dates"
+              *ngIf="contract.effectiveDate || contract.expirationDate"
+            >
+              <mat-icon>event</mat-icon>
+              <span
+                >Effective:
+                <strong>{{
+                  contract.effectiveDate | date: "mediumDate"
+                }}</strong>
+                &ndash;
+                <strong>{{
+                  contract.expirationDate | date: "mediumDate"
+                }}</strong></span
+              >
+            </p>
           </div>
 
-          <div class="cba-articles-box">
-            <h4>Active CBA Articles & Categories</h4>
-            <div *ngFor="let art of cbaService.articles()" class="art-card">
-              <div class="art-top">
-                <span class="art-badge">{{ art.articleNumber }}</span>
-                <span class="art-cat">{{ art.category }}</span>
+          <!-- Multiple contracts switcher if applicable -->
+          <div
+            class="contract-switcher"
+            *ngIf="cbaService.contracts().length > 1"
+          >
+            <mat-form-field
+              appearance="outline"
+              class="compact-select"
+              subscriptSizing="dynamic"
+            >
+              <mat-label>Active Contract</mat-label>
+              <mat-select
+                [value]="contract.id"
+                (selectionChange)="onContractSelect($event.value)"
+              >
+                <mat-option
+                  *ngFor="let c of cbaService.contracts()"
+                  [value]="c.id"
+                >
+                  {{ c.title }} ({{ c.localNumber }})
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <mat-progress-bar
+          *ngIf="cbaService.isLoading()"
+          mode="indeterminate"
+          class="mb-4"
+        ></mat-progress-bar>
+
+        <div class="cba-grid">
+          <!-- SECTION 1: Contractual Step Deadlines Form -->
+          <div class="cba-config-box">
+            <div class="box-header">
+              <div class="box-title">
+                <mat-icon color="primary">timer</mat-icon>
+                <div>
+                  <h4>Contractual Step Deadlines</h4>
+                  <p class="box-subtitle">
+                    Configured timeline countdowns (in days) enforced across
+                    grievance lifecycle stages
+                  </p>
+                </div>
               </div>
-              <h5>{{ art.title }}</h5>
-              <p>{{ art.description }}</p>
             </div>
+
+            <form
+              [formGroup]="deadlinesForm"
+              (ngSubmit)="saveDeadlines()"
+              class="deadlines-form mt-4"
+            >
+              <div class="deadline-field-card">
+                <div class="field-label-group">
+                  <span class="field-title"
+                    >Step 1 Incident Filing Deadline</span
+                  >
+                  <span class="field-desc"
+                    >Calendar/business days from incident date to file initial
+                    Step 1</span
+                  >
+                </div>
+                <div class="field-input-group">
+                  <mat-form-field
+                    appearance="outline"
+                    class="days-input"
+                    subscriptSizing="dynamic"
+                  >
+                    <input
+                      matInput
+                      type="number"
+                      formControlName="step1Days"
+                      min="1"
+                      max="365"
+                    />
+                    <span matTextSuffix class="input-suffix">Days</span>
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <div class="deadline-field-card">
+                <div class="field-label-group">
+                  <span class="field-title"
+                    >Step 2 Employer Response Window</span
+                  >
+                  <span class="field-desc"
+                    >Days allowed for employer written response following Step 2
+                    meeting</span
+                  >
+                </div>
+                <div class="field-input-group">
+                  <mat-form-field
+                    appearance="outline"
+                    class="days-input"
+                    subscriptSizing="dynamic"
+                  >
+                    <input
+                      matInput
+                      type="number"
+                      formControlName="step2EmployerResponseDays"
+                      min="1"
+                      max="365"
+                    />
+                    <span matTextSuffix class="input-suffix">Days</span>
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <div class="deadline-field-card">
+                <div class="field-label-group">
+                  <span class="field-title"
+                    >Step 2 Union Escalation Window</span
+                  >
+                  <span class="field-desc"
+                    >Days for union to advance grievance if employer response is
+                    rejected</span
+                  >
+                </div>
+                <div class="field-input-group">
+                  <mat-form-field
+                    appearance="outline"
+                    class="days-input"
+                    subscriptSizing="dynamic"
+                  >
+                    <input
+                      matInput
+                      type="number"
+                      formControlName="step2UnionEscalationDays"
+                      min="1"
+                      max="365"
+                    />
+                    <span matTextSuffix class="input-suffix">Days</span>
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <div class="deadline-field-card">
+                <div class="field-label-group">
+                  <span class="field-title"
+                    >Step 3 Mediation / Step 3 Response</span
+                  >
+                  <span class="field-desc"
+                    >Days allowed for Step 3 mediation window or final employer
+                    hearing response</span
+                  >
+                </div>
+                <div class="field-input-group">
+                  <mat-form-field
+                    appearance="outline"
+                    class="days-input"
+                    subscriptSizing="dynamic"
+                  >
+                    <input
+                      matInput
+                      type="number"
+                      formControlName="step3EmployerResponseDays"
+                      min="1"
+                      max="365"
+                    />
+                    <span matTextSuffix class="input-suffix">Days</span>
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <div class="deadline-field-card">
+                <div class="field-label-group">
+                  <span class="field-title"
+                    >Arbitration Demand Filing Deadline</span
+                  >
+                  <span class="field-desc"
+                    >Calendar days to file formal demand for arbitration with
+                    AAA / FMCS</span
+                  >
+                </div>
+                <div class="field-input-group">
+                  <mat-form-field
+                    appearance="outline"
+                    class="days-input"
+                    subscriptSizing="dynamic"
+                  >
+                    <input
+                      matInput
+                      type="number"
+                      formControlName="arbitrationFilingDays"
+                      min="1"
+                      max="365"
+                    />
+                    <span matTextSuffix class="input-suffix">Days</span>
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <div class="form-actions mt-4">
+                <button
+                  mat-button
+                  type="button"
+                  (click)="resetDeadlines()"
+                  [disabled]="isSavingDeadlines() || cbaService.isLoading()"
+                >
+                  <mat-icon>undo</mat-icon> Reset
+                </button>
+                <button
+                  mat-flat-button
+                  color="primary"
+                  type="submit"
+                  [disabled]="
+                    deadlinesForm.invalid ||
+                    isSavingDeadlines() ||
+                    cbaService.isLoading()
+                  "
+                >
+                  <mat-icon *ngIf="!isSavingDeadlines()">save</mat-icon>
+                  <span>{{
+                    isSavingDeadlines()
+                      ? "Saving Deadlines..."
+                      : "Save Contract Deadlines"
+                  }}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- SECTION 2: Active CBA Articles & Categories Management -->
+          <div class="cba-articles-box">
+            <div
+              class="box-header flex justify-between items-center flex-wrap gap-2"
+            >
+              <div class="box-title">
+                <mat-icon color="primary">menu_book</mat-icon>
+                <div>
+                  <h4>Active CBA Articles & Categories</h4>
+                  <p class="box-subtitle">
+                    {{ cbaService.articles().length }} active contract
+                    provisions available for grievance citations
+                  </p>
+                </div>
+              </div>
+              <button
+                mat-flat-button
+                color="primary"
+                type="button"
+                (click)="openAddArticleDialog()"
+                class="add-article-btn"
+              >
+                <mat-icon>add</mat-icon> Add CBA Article
+              </button>
+            </div>
+
+            <!-- Search and Filter Toolbar -->
+            <div class="articles-toolbar mt-3">
+              <mat-form-field
+                appearance="outline"
+                class="search-field"
+                subscriptSizing="dynamic"
+              >
+                <mat-label>Search Articles & Provisions</mat-label>
+                <input
+                  matInput
+                  [ngModel]="articleSearchQuery()"
+                  (ngModelChange)="articleSearchQuery.set($event)"
+                  placeholder="Filter by article number, title, section, or keyword..."
+                />
+                <mat-icon matPrefix>search</mat-icon>
+                <button
+                  mat-icon-button
+                  matSuffix
+                  *ngIf="articleSearchQuery()"
+                  (click)="articleSearchQuery.set('')"
+                  aria-label="Clear search"
+                >
+                  <mat-icon>clear</mat-icon>
+                </button>
+              </mat-form-field>
+
+              <!-- Category Filter Chips -->
+              <div class="category-chips-scroll">
+                <button
+                  type="button"
+                  class="cat-chip-btn"
+                  [class.active]="selectedCategoryFilter() === 'ALL'"
+                  (click)="selectedCategoryFilter.set('ALL')"
+                >
+                  All ({{ getCategoryCount("ALL") }})
+                </button>
+                <button
+                  *ngFor="let cat of categories"
+                  type="button"
+                  class="cat-chip-btn"
+                  [class.active]="selectedCategoryFilter() === cat"
+                  (click)="selectedCategoryFilter.set(cat)"
+                >
+                  {{ cat }} ({{ getCategoryCount(cat) }})
+                </button>
+              </div>
+            </div>
+
+            <!-- Articles Cards List -->
+            <div
+              class="articles-list mt-3"
+              *ngIf="filteredArticles().length > 0; else emptyArticles"
+            >
+              <div
+                *ngFor="let art of filteredArticles()"
+                class="art-card-modern"
+              >
+                <div class="art-top-row">
+                  <div class="art-identifiers">
+                    <span class="art-badge">{{ art.articleNumber }}</span>
+                    <span
+                      class="badge"
+                      [ngClass]="getCategoryClass(art.category)"
+                    >
+                      {{ art.category }}
+                    </span>
+                    <span class="art-section-tag" *ngIf="art.section">
+                      <mat-icon>bookmark_border</mat-icon> {{ art.section }}
+                    </span>
+                  </div>
+                  <div class="art-actions">
+                    <button
+                      mat-icon-button
+                      type="button"
+                      matTooltip="Edit Article"
+                      (click)="openEditArticleDialog(art)"
+                    >
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <button
+                      mat-icon-button
+                      color="warn"
+                      type="button"
+                      matTooltip="Delete Article"
+                      (click)="deleteArticle(art)"
+                    >
+                      <mat-icon>delete_outline</mat-icon>
+                    </button>
+                  </div>
+                </div>
+
+                <h5 class="art-title">{{ art.title }}</h5>
+                <p class="art-desc">{{ art.description }}</p>
+              </div>
+            </div>
+
+            <!-- Empty State Template -->
+            <ng-template #emptyArticles>
+              <div class="empty-state-box">
+                <mat-icon class="empty-icon">search_off</mat-icon>
+                <h5
+                  *ngIf="
+                    articleSearchQuery() || selectedCategoryFilter() !== 'ALL'
+                  "
+                >
+                  No matching articles found
+                </h5>
+                <h5
+                  *ngIf="
+                    !articleSearchQuery() && selectedCategoryFilter() === 'ALL'
+                  "
+                >
+                  No CBA articles configured yet
+                </h5>
+                <p
+                  *ngIf="
+                    articleSearchQuery() || selectedCategoryFilter() !== 'ALL'
+                  "
+                >
+                  No CBA articles match your current search query or category
+                  filter.
+                </p>
+                <div class="empty-actions mt-3">
+                  <button
+                    mat-stroked-button
+                    *ngIf="
+                      articleSearchQuery() || selectedCategoryFilter() !== 'ALL'
+                    "
+                    (click)="
+                      articleSearchQuery.set('');
+                      selectedCategoryFilter.set('ALL')
+                    "
+                  >
+                    Clear Filters
+                  </button>
+                  <button
+                    mat-flat-button
+                    color="primary"
+                    (click)="openAddArticleDialog()"
+                  >
+                    <mat-icon>add</mat-icon> Add New CBA Article
+                  </button>
+                </div>
+              </div>
+            </ng-template>
           </div>
         </div>
       </div>
