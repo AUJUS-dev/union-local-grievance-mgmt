@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -38,6 +38,7 @@ import { Grievance, GrievanceStep } from '@union-local/shared';
     MatProgressBarModule
   ],
   templateUrl: './grievance-list.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './grievance-list.component.scss'
 })
 export class GrievanceListComponent implements OnInit {

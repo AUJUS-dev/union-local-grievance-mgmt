@@ -22,18 +22,19 @@
           </p>
         </div>
 
-        <mat-progress-bar
-          *ngIf="isLoading()"
-          mode="indeterminate"
-          class="mb-4"
-        ></mat-progress-bar>
+        @if (isLoading()) {
+          <mat-progress-bar
+            mode="indeterminate"
+            class="mb-4"
+          ></mat-progress-bar>
+        }
 
         <div class="table-container">
           <table
             mat-table
             [dataSource]="users()"
             class="mat-elevation-z0 admin-table"
-          >
+            >
             <!-- Name & Email -->
             <ng-container matColumnDef="name">
               <th mat-header-cell *matHeaderCellDef>User Details</th>
@@ -52,18 +53,20 @@
               <th mat-header-cell *matHeaderCellDef>Local & Unit</th>
               <td mat-cell *matCellDef="let u">
                 <span>{{ u.localNumber || "Local 1118" }}</span>
-                <span class="unit-sub" *ngIf="u.bargainingUnitId"
-                  >&bull; {{ u.bargainingUnitId }}</span
-                >
-              </td>
-            </ng-container>
+                @if (u.bargainingUnitId) {
+                  <span class="unit-sub"
+                    >&bull; {{ u.bargainingUnitId }}</span
+                    >
+                  }
+                </td>
+              </ng-container>
 
-            <!-- Current Role -->
-            <ng-container matColumnDef="role">
-              <th mat-header-cell *matHeaderCellDef>Current Role</th>
-              <td mat-cell *matCellDef="let u">
-                <span
-                  class="badge"
+              <!-- Current Role -->
+              <ng-container matColumnDef="role">
+                <th mat-header-cell *matHeaderCellDef>Current Role</th>
+                <td mat-cell *matCellDef="let u">
+                  <span
+                    class="badge"
                   [ngClass]="{
                     'badge-danger': u.role === 'admin',
                     'badge-purple': u.role === 'business_agent',
@@ -71,482 +74,496 @@
                       u.role === 'chief_steward' || u.role === 'steward',
                     'badge-primary': u.role === 'member',
                   }"
-                >
-                  {{ formatRole(u.role) | uppercase }}
-                </span>
-              </td>
-            </ng-container>
-
-            <!-- Change Role Action -->
-            <ng-container matColumnDef="actions">
-              <th mat-header-cell *matHeaderCellDef>Elevate / Change Role</th>
-              <td mat-cell *matCellDef="let u">
-                <div class="role-action-cell">
-                  <mat-form-field
-                    appearance="outline"
-                    class="compact-select"
-                    subscriptSizing="dynamic"
-                  >
-                    <mat-select
-                      [value]="u.role"
-                      (selectionChange)="updateUserRole(u.uid, $event.value)"
                     >
-                      <mat-option value="member">Member</mat-option>
-                      <mat-option value="steward">Shop Steward</mat-option>
-                      <mat-option value="chief_steward"
-                        >Chief Steward</mat-option
+                    {{ formatRole(u.role) | uppercase }}
+                  </span>
+                </td>
+              </ng-container>
+
+              <!-- Change Role Action -->
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef>Elevate / Change Role</th>
+                <td mat-cell *matCellDef="let u">
+                  <div class="role-action-cell">
+                    <mat-form-field
+                      appearance="outline"
+                      class="compact-select"
+                      subscriptSizing="dynamic"
                       >
-                      <mat-option value="business_agent"
-                        >Business Agent</mat-option
-                      >
-                      <mat-option value="admin">Union Admin</mat-option>
-                    </mat-select>
-                  </mat-form-field>
-                </div>
-              </td>
-            </ng-container>
+                      <mat-select
+                        [value]="u.role"
+                        (selectionChange)="updateUserRole(u.uid, $event.value)"
+                        >
+                        <mat-option value="member">Member</mat-option>
+                        <mat-option value="steward">Shop Steward</mat-option>
+                        <mat-option value="chief_steward"
+                          >Chief Steward</mat-option
+                          >
+                          <mat-option value="business_agent"
+                            >Business Agent</mat-option
+                            >
+                            <mat-option value="admin">Union Admin</mat-option>
+                          </mat-select>
+                        </mat-form-field>
+                      </div>
+                    </td>
+                  </ng-container>
 
-            <tr mat-header-row *matHeaderRowDef="userColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: userColumns"></tr>
-          </table>
-        </div>
-      </div>
-    </mat-tab>
-
-    <!-- TAB 2: CBA Articles & Rules -->
-    <mat-tab label="CBA Contract & Deadlines">
-      <div class="tab-padding">
-        <!-- Contract Header & Selection Banner -->
-        <div
-          class="contract-banner mb-6"
-          *ngIf="cbaService.selectedContract() as contract"
-        >
-          <div class="banner-info">
-            <div class="banner-badges">
-              <span class="badge badge-primary">{{
-                contract.localNumber || "Local 1118"
-              }}</span>
-              <span class="badge badge-neutral">{{
-                contract.employerName || "Acme Heavy Industries"
-              }}</span>
-              <span class="contract-id-tag">ID: {{ contract.id }}</span>
-            </div>
-            <h3>{{ contract.title }}</h3>
-            <p
-              class="contract-dates"
-              *ngIf="contract.effectiveDate || contract.expirationDate"
-            >
-              <mat-icon>event</mat-icon>
-              <span
-                >Effective:
-                <strong>{{
-                  contract.effectiveDate | date: "mediumDate"
-                }}</strong>
-                &ndash;
-                <strong>{{
-                  contract.expirationDate | date: "mediumDate"
-                }}</strong></span
-              >
-            </p>
-          </div>
-
-          <!-- Multiple contracts switcher if applicable -->
-          <div
-            class="contract-switcher"
-            *ngIf="cbaService.contracts().length > 1"
-          >
-            <mat-form-field
-              appearance="outline"
-              class="compact-select"
-              subscriptSizing="dynamic"
-            >
-              <mat-label>Active Contract</mat-label>
-              <mat-select
-                [value]="contract.id"
-                (selectionChange)="onContractSelect($event.value)"
-              >
-                <mat-option
-                  *ngFor="let c of cbaService.contracts()"
-                  [value]="c.id"
-                >
-                  {{ c.title }} ({{ c.localNumber }})
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-          </div>
-        </div>
-
-        <mat-progress-bar
-          *ngIf="cbaService.isLoading()"
-          mode="indeterminate"
-          class="mb-4"
-        ></mat-progress-bar>
-
-        <div class="cba-grid">
-          <!-- SECTION 1: Contractual Step Deadlines Form -->
-          <div class="cba-config-box">
-            <div class="box-header">
-              <div class="box-title">
-                <mat-icon color="primary">timer</mat-icon>
-                <div>
-                  <h4>Contractual Step Deadlines</h4>
-                  <p class="box-subtitle">
-                    Configured timeline countdowns (in days) enforced across
-                    grievance lifecycle stages
-                  </p>
-                </div>
+                  <tr mat-header-row *matHeaderRowDef="userColumns"></tr>
+                  <tr mat-row *matRowDef="let row; columns: userColumns"></tr>
+                </table>
               </div>
             </div>
+          </mat-tab>
 
-            <form
-              [formGroup]="deadlinesForm"
-              (ngSubmit)="saveDeadlines()"
-              class="deadlines-form mt-4"
-            >
-              <div class="deadline-field-card">
-                <div class="field-label-group">
-                  <span class="field-title"
-                    >Step 1 Incident Filing Deadline</span
+          <!-- TAB 2: CBA Articles & Rules -->
+          <mat-tab label="CBA Contract & Deadlines">
+            <div class="tab-padding">
+              <!-- Contract Header & Selection Banner -->
+              @if (cbaService.selectedContract(); as contract) {
+                <div
+                  class="contract-banner mb-6"
                   >
-                  <span class="field-desc"
-                    >Calendar/business days from incident date to file initial
-                    Step 1</span
-                  >
-                </div>
-                <div class="field-input-group">
-                  <mat-form-field
-                    appearance="outline"
-                    class="days-input"
-                    subscriptSizing="dynamic"
-                  >
-                    <input
-                      matInput
-                      type="number"
-                      formControlName="step1Days"
-                      min="1"
-                      max="365"
-                    />
-                    <span matTextSuffix class="input-suffix">Days</span>
-                  </mat-form-field>
-                </div>
-              </div>
+                  <div class="banner-info">
+                    <div class="banner-badges">
+                      <span class="badge badge-primary">{{
+                        contract.localNumber || "Local 1118"
+                      }}</span>
+                      <span class="badge badge-neutral">{{
+                        contract.employerName || "Acme Heavy Industries"
+                      }}</span>
+                      <span class="contract-id-tag">ID: {{ contract.id }}</span>
+                    </div>
+                    <h3>{{ contract.title }}</h3>
+                    @if (contract.effectiveDate || contract.expirationDate) {
+                      <p
+                        class="contract-dates"
+                        >
+                        <mat-icon>event</mat-icon>
+                        <span
+                          >Effective:
+                          <strong>{{
+                            contract.effectiveDate | date: "mediumDate"
+                          }}</strong>
+                          &ndash;
+                          <strong>{{
+                            contract.expirationDate | date: "mediumDate"
+                          }}</strong></span
+                          >
+                        </p>
+                      }
+                    </div>
+                    <!-- Multiple contracts switcher if applicable -->
+                    @if (cbaService.contracts().length > 1) {
+                      <div
+                        class="contract-switcher"
+                        >
+                        <mat-form-field
+                          appearance="outline"
+                          class="compact-select"
+                          subscriptSizing="dynamic"
+                          >
+                          <mat-label>Active Contract</mat-label>
+                          <mat-select
+                            [value]="contract.id"
+                            (selectionChange)="onContractSelect($event.value)"
+                            >
+                            @for (c of cbaService.contracts(); track c) {
+                              <mat-option
+                                [value]="c.id"
+                                >
+                                {{ c.title }} ({{ c.localNumber }})
+                              </mat-option>
+                            }
+                          </mat-select>
+                        </mat-form-field>
+                      </div>
+                    }
+                  </div>
+                }
 
-              <div class="deadline-field-card">
-                <div class="field-label-group">
-                  <span class="field-title"
-                    >Step 2 Employer Response Window</span
-                  >
-                  <span class="field-desc"
-                    >Days allowed for employer written response following Step 2
-                    meeting</span
-                  >
-                </div>
-                <div class="field-input-group">
-                  <mat-form-field
-                    appearance="outline"
-                    class="days-input"
-                    subscriptSizing="dynamic"
-                  >
-                    <input
-                      matInput
-                      type="number"
-                      formControlName="step2EmployerResponseDays"
-                      min="1"
-                      max="365"
-                    />
-                    <span matTextSuffix class="input-suffix">Days</span>
-                  </mat-form-field>
-                </div>
-              </div>
+                @if (cbaService.isLoading()) {
+                  <mat-progress-bar
+                    mode="indeterminate"
+                    class="mb-4"
+                  ></mat-progress-bar>
+                }
 
-              <div class="deadline-field-card">
-                <div class="field-label-group">
-                  <span class="field-title"
-                    >Step 2 Union Escalation Window</span
-                  >
-                  <span class="field-desc"
-                    >Days for union to advance grievance if employer response is
-                    rejected</span
-                  >
-                </div>
-                <div class="field-input-group">
-                  <mat-form-field
-                    appearance="outline"
-                    class="days-input"
-                    subscriptSizing="dynamic"
-                  >
-                    <input
-                      matInput
-                      type="number"
-                      formControlName="step2UnionEscalationDays"
-                      min="1"
-                      max="365"
-                    />
-                    <span matTextSuffix class="input-suffix">Days</span>
-                  </mat-form-field>
-                </div>
-              </div>
+                <div class="cba-grid">
+                  <!-- SECTION 1: Contractual Step Deadlines Form -->
+                  <div class="cba-config-box">
+                    <div class="box-header">
+                      <div class="box-title">
+                        <mat-icon color="primary">timer</mat-icon>
+                        <div>
+                          <h4>Contractual Step Deadlines</h4>
+                          <p class="box-subtitle">
+                            Configured timeline countdowns (in days) enforced across
+                            grievance lifecycle stages
+                          </p>
+                        </div>
+                      </div>
+                    </div>
 
-              <div class="deadline-field-card">
-                <div class="field-label-group">
-                  <span class="field-title"
-                    >Step 3 Mediation / Step 3 Response</span
-                  >
-                  <span class="field-desc"
-                    >Days allowed for Step 3 mediation window or final employer
-                    hearing response</span
-                  >
-                </div>
-                <div class="field-input-group">
-                  <mat-form-field
-                    appearance="outline"
-                    class="days-input"
-                    subscriptSizing="dynamic"
-                  >
-                    <input
-                      matInput
-                      type="number"
-                      formControlName="step3EmployerResponseDays"
-                      min="1"
-                      max="365"
-                    />
-                    <span matTextSuffix class="input-suffix">Days</span>
-                  </mat-form-field>
-                </div>
-              </div>
+                    <form
+                      [formGroup]="deadlinesForm"
+                      (ngSubmit)="saveDeadlines()"
+                      class="deadlines-form mt-4"
+                      >
+                      <div class="deadline-field-card">
+                        <div class="field-label-group">
+                          <span class="field-title"
+                            >Step 1 Incident Filing Deadline</span
+                            >
+                            <span class="field-desc"
+                              >Calendar/business days from incident date to file initial
+                              Step 1</span
+                              >
+                            </div>
+                            <div class="field-input-group">
+                              <mat-form-field
+                                appearance="outline"
+                                class="days-input"
+                                subscriptSizing="dynamic"
+                                >
+                                <input
+                                  matInput
+                                  type="number"
+                                  formControlName="step1Days"
+                                  min="1"
+                                  max="365"
+                                  />
+                                <span matTextSuffix class="input-suffix">Days</span>
+                              </mat-form-field>
+                            </div>
+                          </div>
 
-              <div class="deadline-field-card">
-                <div class="field-label-group">
-                  <span class="field-title"
-                    >Arbitration Demand Filing Deadline</span
-                  >
-                  <span class="field-desc"
-                    >Calendar days to file formal demand for arbitration with
-                    AAA / FMCS</span
-                  >
-                </div>
-                <div class="field-input-group">
-                  <mat-form-field
-                    appearance="outline"
-                    class="days-input"
-                    subscriptSizing="dynamic"
-                  >
-                    <input
-                      matInput
-                      type="number"
-                      formControlName="arbitrationFilingDays"
-                      min="1"
-                      max="365"
-                    />
-                    <span matTextSuffix class="input-suffix">Days</span>
-                  </mat-form-field>
-                </div>
-              </div>
+                          <div class="deadline-field-card">
+                            <div class="field-label-group">
+                              <span class="field-title"
+                                >Step 2 Employer Response Window</span
+                                >
+                                <span class="field-desc"
+                                  >Days allowed for employer written response following Step 2
+                                  meeting</span
+                                  >
+                                </div>
+                                <div class="field-input-group">
+                                  <mat-form-field
+                                    appearance="outline"
+                                    class="days-input"
+                                    subscriptSizing="dynamic"
+                                    >
+                                    <input
+                                      matInput
+                                      type="number"
+                                      formControlName="step2EmployerResponseDays"
+                                      min="1"
+                                      max="365"
+                                      />
+                                    <span matTextSuffix class="input-suffix">Days</span>
+                                  </mat-form-field>
+                                </div>
+                              </div>
 
-              <div class="form-actions mt-4">
-                <button
-                  mat-button
-                  type="button"
-                  (click)="resetDeadlines()"
-                  [disabled]="isSavingDeadlines() || cbaService.isLoading()"
-                >
-                  <mat-icon>undo</mat-icon> Reset
-                </button>
-                <button
-                  mat-flat-button
-                  color="primary"
-                  type="submit"
+                              <div class="deadline-field-card">
+                                <div class="field-label-group">
+                                  <span class="field-title"
+                                    >Step 2 Union Escalation Window</span
+                                    >
+                                    <span class="field-desc"
+                                      >Days for union to advance grievance if employer response is
+                                      rejected</span
+                                      >
+                                    </div>
+                                    <div class="field-input-group">
+                                      <mat-form-field
+                                        appearance="outline"
+                                        class="days-input"
+                                        subscriptSizing="dynamic"
+                                        >
+                                        <input
+                                          matInput
+                                          type="number"
+                                          formControlName="step2UnionEscalationDays"
+                                          min="1"
+                                          max="365"
+                                          />
+                                        <span matTextSuffix class="input-suffix">Days</span>
+                                      </mat-form-field>
+                                    </div>
+                                  </div>
+
+                                  <div class="deadline-field-card">
+                                    <div class="field-label-group">
+                                      <span class="field-title"
+                                        >Step 3 Mediation / Step 3 Response</span
+                                        >
+                                        <span class="field-desc"
+                                          >Days allowed for Step 3 mediation window or final employer
+                                          hearing response</span
+                                          >
+                                        </div>
+                                        <div class="field-input-group">
+                                          <mat-form-field
+                                            appearance="outline"
+                                            class="days-input"
+                                            subscriptSizing="dynamic"
+                                            >
+                                            <input
+                                              matInput
+                                              type="number"
+                                              formControlName="step3EmployerResponseDays"
+                                              min="1"
+                                              max="365"
+                                              />
+                                            <span matTextSuffix class="input-suffix">Days</span>
+                                          </mat-form-field>
+                                        </div>
+                                      </div>
+
+                                      <div class="deadline-field-card">
+                                        <div class="field-label-group">
+                                          <span class="field-title"
+                                            >Arbitration Demand Filing Deadline</span
+                                            >
+                                            <span class="field-desc"
+                                              >Calendar days to file formal demand for arbitration with
+                                              AAA / FMCS</span
+                                              >
+                                            </div>
+                                            <div class="field-input-group">
+                                              <mat-form-field
+                                                appearance="outline"
+                                                class="days-input"
+                                                subscriptSizing="dynamic"
+                                                >
+                                                <input
+                                                  matInput
+                                                  type="number"
+                                                  formControlName="arbitrationFilingDays"
+                                                  min="1"
+                                                  max="365"
+                                                  />
+                                                <span matTextSuffix class="input-suffix">Days</span>
+                                              </mat-form-field>
+                                            </div>
+                                          </div>
+
+                                          <div class="form-actions mt-4">
+                                            <button
+                                              mat-button
+                                              type="button"
+                                              (click)="resetDeadlines()"
+                                              [disabled]="isSavingDeadlines() || cbaService.isLoading()"
+                                              >
+                                              <mat-icon>undo</mat-icon> Reset
+                                            </button>
+                                            <button
+                                              mat-flat-button
+                                              color="primary"
+                                              type="submit"
                   [disabled]="
                     deadlinesForm.invalid ||
                     isSavingDeadlines() ||
                     cbaService.isLoading()
                   "
-                >
-                  <mat-icon *ngIf="!isSavingDeadlines()">save</mat-icon>
-                  <span>{{
-                    isSavingDeadlines()
-                      ? "Saving Deadlines..."
-                      : "Save Contract Deadlines"
-                  }}</span>
-                </button>
-              </div>
-            </form>
-          </div>
+                                              >
+                                              @if (!isSavingDeadlines()) {
+                                                <mat-icon>save</mat-icon>
+                                              }
+                                              <span>{{
+                                                isSavingDeadlines()
+                                                ? "Saving Deadlines..."
+                                                : "Save Contract Deadlines"
+                                              }}</span>
+                                            </button>
+                                          </div>
+                                        </form>
+                                      </div>
 
-          <!-- SECTION 2: Active CBA Articles & Categories Management -->
-          <div class="cba-articles-box">
-            <div
-              class="box-header flex justify-between items-center flex-wrap gap-2"
-            >
-              <div class="box-title">
-                <mat-icon color="primary">menu_book</mat-icon>
-                <div>
-                  <h4>Active CBA Articles & Categories</h4>
-                  <p class="box-subtitle">
-                    {{ cbaService.articles().length }} active contract
-                    provisions available for grievance citations
-                  </p>
-                </div>
-              </div>
-              <button
-                mat-flat-button
-                color="primary"
-                type="button"
-                (click)="openAddArticleDialog()"
-                class="add-article-btn"
-              >
-                <mat-icon>add</mat-icon> Add CBA Article
-              </button>
-            </div>
+                                      <!-- SECTION 2: Active CBA Articles & Categories Management -->
+                                      <div class="cba-articles-box">
+                                        <div
+                                          class="box-header flex justify-between items-center flex-wrap gap-2"
+                                          >
+                                          <div class="box-title">
+                                            <mat-icon color="primary">menu_book</mat-icon>
+                                            <div>
+                                              <h4>Active CBA Articles & Categories</h4>
+                                              <p class="box-subtitle">
+                                                {{ cbaService.articles().length }} active contract
+                                                provisions available for grievance citations
+                                              </p>
+                                            </div>
+                                          </div>
+                                          <button
+                                            mat-flat-button
+                                            color="primary"
+                                            type="button"
+                                            (click)="openAddArticleDialog()"
+                                            class="add-article-btn"
+                                            >
+                                            <mat-icon>add</mat-icon> Add CBA Article
+                                          </button>
+                                        </div>
 
-            <!-- Search and Filter Toolbar -->
-            <div class="articles-toolbar mt-3">
-              <mat-form-field
-                appearance="outline"
-                class="search-field"
-                subscriptSizing="dynamic"
-              >
-                <mat-label>Search Articles & Provisions</mat-label>
-                <input
-                  matInput
-                  [ngModel]="articleSearchQuery()"
-                  (ngModelChange)="articleSearchQuery.set($event)"
-                  placeholder="Filter by article number, title, section, or keyword..."
-                />
-                <mat-icon matPrefix>search</mat-icon>
-                <button
-                  mat-icon-button
-                  matSuffix
-                  *ngIf="articleSearchQuery()"
-                  (click)="articleSearchQuery.set('')"
-                  aria-label="Clear search"
-                >
-                  <mat-icon>clear</mat-icon>
-                </button>
-              </mat-form-field>
+                                        <!-- Search and Filter Toolbar -->
+                                        <div class="articles-toolbar mt-3">
+                                          <mat-form-field
+                                            appearance="outline"
+                                            class="search-field"
+                                            subscriptSizing="dynamic"
+                                            >
+                                            <mat-label>Search Articles & Provisions</mat-label>
+                                            <input
+                                              matInput
+                                              [ngModel]="articleSearchQuery()"
+                                              (ngModelChange)="articleSearchQuery.set($event)"
+                                              placeholder="Filter by article number, title, section, or keyword..."
+                                              />
+                                            <mat-icon matPrefix>search</mat-icon>
+                                            @if (articleSearchQuery()) {
+                                              <button
+                                                mat-icon-button
+                                                matSuffix
+                                                (click)="articleSearchQuery.set('')"
+                                                aria-label="Clear search"
+                                                >
+                                                <mat-icon>clear</mat-icon>
+                                              </button>
+                                            }
+                                          </mat-form-field>
 
-              <!-- Category Filter Chips -->
-              <div class="category-chips-scroll">
-                <button
-                  type="button"
-                  class="cat-chip-btn"
-                  [class.active]="selectedCategoryFilter() === 'ALL'"
-                  (click)="selectedCategoryFilter.set('ALL')"
-                >
-                  All ({{ getCategoryCount("ALL") }})
-                </button>
-                <button
-                  *ngFor="let cat of categories"
-                  type="button"
-                  class="cat-chip-btn"
-                  [class.active]="selectedCategoryFilter() === cat"
-                  (click)="selectedCategoryFilter.set(cat)"
-                >
-                  {{ cat }} ({{ getCategoryCount(cat) }})
-                </button>
-              </div>
-            </div>
+                                          <!-- Category Filter Chips -->
+                                          <div class="category-chips-scroll">
+                                            <button
+                                              type="button"
+                                              class="cat-chip-btn"
+                                              [class.active]="selectedCategoryFilter() === 'ALL'"
+                                              (click)="selectedCategoryFilter.set('ALL')"
+                                              >
+                                              All ({{ getCategoryCount("ALL") }})
+                                            </button>
+                                            @for (cat of categories; track cat) {
+                                              <button
+                                                type="button"
+                                                class="cat-chip-btn"
+                                                [class.active]="selectedCategoryFilter() === cat"
+                                                (click)="selectedCategoryFilter.set(cat)"
+                                                >
+                                                {{ cat }} ({{ getCategoryCount(cat) }})
+                                              </button>
+                                            }
+                                          </div>
+                                        </div>
 
-            <!-- Articles Cards List -->
-            <div
-              class="articles-list mt-3"
-              *ngIf="filteredArticles().length > 0; else emptyArticles"
-            >
-              <div
-                *ngFor="let art of filteredArticles()"
-                class="art-card-modern"
-              >
-                <div class="art-top-row">
-                  <div class="art-identifiers">
-                    <span class="art-badge">{{ art.articleNumber }}</span>
-                    <span
-                      class="badge"
-                      [ngClass]="getCategoryClass(art.category)"
-                    >
-                      {{ art.category }}
-                    </span>
-                    <span class="art-section-tag" *ngIf="art.section">
-                      <mat-icon>bookmark_border</mat-icon> {{ art.section }}
-                    </span>
-                  </div>
-                  <div class="art-actions">
-                    <button
-                      mat-icon-button
-                      type="button"
-                      matTooltip="Edit Article"
-                      (click)="openEditArticleDialog(art)"
-                    >
-                      <mat-icon>edit</mat-icon>
-                    </button>
-                    <button
-                      mat-icon-button
-                      color="warn"
-                      type="button"
-                      matTooltip="Delete Article"
-                      (click)="deleteArticle(art)"
-                    >
-                      <mat-icon>delete_outline</mat-icon>
-                    </button>
-                  </div>
-                </div>
-
-                <h5 class="art-title">{{ art.title }}</h5>
-                <p class="art-desc">{{ art.description }}</p>
-              </div>
-            </div>
-
-            <!-- Empty State Template -->
-            <ng-template #emptyArticles>
-              <div class="empty-state-box">
-                <mat-icon class="empty-icon">search_off</mat-icon>
-                <h5
-                  *ngIf="
-                    articleSearchQuery() || selectedCategoryFilter() !== 'ALL'
-                  "
-                >
-                  No matching articles found
-                </h5>
-                <h5
-                  *ngIf="
-                    !articleSearchQuery() && selectedCategoryFilter() === 'ALL'
-                  "
-                >
-                  No CBA articles configured yet
-                </h5>
-                <p
-                  *ngIf="
-                    articleSearchQuery() || selectedCategoryFilter() !== 'ALL'
-                  "
-                >
-                  No CBA articles match your current search query or category
-                  filter.
-                </p>
-                <div class="empty-actions mt-3">
-                  <button
-                    mat-stroked-button
-                    *ngIf="
-                      articleSearchQuery() || selectedCategoryFilter() !== 'ALL'
-                    "
+                                        <!-- Articles Cards List -->
+                                        @if (filteredArticles().length > 0) {
+                                          <div
+                                            class="articles-list mt-3"
+                                            >
+                                            @for (art of filteredArticles(); track art) {
+                                              <div
+                                                class="art-card-modern"
+                                                >
+                                                <div class="art-top-row">
+                                                  <div class="art-identifiers">
+                                                    <span class="art-badge">{{ art.articleNumber }}</span>
+                                                    <span
+                                                      class="badge"
+                                                      [ngClass]="getCategoryClass(art.category)"
+                                                      >
+                                                      {{ art.category }}
+                                                    </span>
+                                                    @if (art.section) {
+                                                      <span class="art-section-tag">
+                                                        <mat-icon>bookmark_border</mat-icon> {{ art.section }}
+                                                      </span>
+                                                    }
+                                                  </div>
+                                                  <div class="art-actions">
+                                                    <button
+                                                      mat-icon-button
+                                                      type="button"
+                                                      matTooltip="Edit Article"
+                                                      (click)="openEditArticleDialog(art)"
+                                                      >
+                                                      <mat-icon>edit</mat-icon>
+                                                    </button>
+                                                    <button
+                                                      mat-icon-button
+                                                      color="warn"
+                                                      type="button"
+                                                      matTooltip="Delete Article"
+                                                      (click)="deleteArticle(art)"
+                                                      >
+                                                      <mat-icon>delete_outline</mat-icon>
+                                                    </button>
+                                                  </div>
+                                                </div>
+                                                <h5 class="art-title">{{ art.title }}</h5>
+                                                <p class="art-desc">{{ art.description }}</p>
+                                              </div>
+                                            }
+                                          </div>
+                                        } @else {
+                                          <div class="empty-state-box">
+                                            <mat-icon class="empty-icon">search_off</mat-icon>
+                                            @if (
+                                              articleSearchQuery() || selectedCategoryFilter() !== 'ALL'
+                                              ) {
+                                              <h5
+                                                >
+                                                No matching articles found
+                                              </h5>
+                                            }
+                                            @if (
+                                              !articleSearchQuery() && selectedCategoryFilter() === 'ALL'
+                                              ) {
+                                              <h5
+                                                >
+                                                No CBA articles configured yet
+                                              </h5>
+                                            }
+                                            @if (
+                                              articleSearchQuery() || selectedCategoryFilter() !== 'ALL'
+                                              ) {
+                                              <p
+                                                >
+                                                No CBA articles match your current search query or category
+                                                filter.
+                                              </p>
+                                            }
+                                            <div class="empty-actions mt-3">
+                                              @if (
+                                                articleSearchQuery() || selectedCategoryFilter() !== 'ALL'
+                                                ) {
+                                                <button
+                                                  mat-stroked-button
                     (click)="
                       articleSearchQuery.set('');
                       selectedCategoryFilter.set('ALL')
                     "
-                  >
-                    Clear Filters
-                  </button>
-                  <button
-                    mat-flat-button
-                    color="primary"
-                    (click)="openAddArticleDialog()"
-                  >
-                    <mat-icon>add</mat-icon> Add New CBA Article
-                  </button>
-                </div>
-              </div>
-            </ng-template>
-          </div>
-        </div>
-      </div>
-    </mat-tab>
-  </mat-tab-group>
-</mat-card>
+                                                  >
+                                                  Clear Filters
+                                                </button>
+                                              }
+                                              <button
+                                                mat-flat-button
+                                                color="primary"
+                                                (click)="openAddArticleDialog()"
+                                                >
+                                                <mat-icon>add</mat-icon> Add New CBA Article
+                                              </button>
+                                            </div>
+                                          </div>
+                                        }
+
+                                        <!-- Empty State Template -->
+                                      </div>
+                                    </div>
+                                  </div>
+                                </mat-tab>
+                              </mat-tab-group>
+                            </mat-card>

@@ -1,5 +1,5 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+
 import {
   FormBuilder,
   FormGroup,
@@ -32,16 +32,16 @@ export interface CBAArticleDialogResult {
   selector: 'app-cba-article-dialog',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
     MatButtonModule,
-    MatIconModule,
-  ],
+    MatIconModule
+],
   templateUrl: './cba-article-dialog.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './cba-article-dialog.component.scss',
 })
 export class CBAArticleDialogComponent implements OnInit {

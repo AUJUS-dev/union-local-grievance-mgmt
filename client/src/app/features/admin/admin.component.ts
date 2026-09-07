@@ -5,6 +5,7 @@ import {
   signal,
   computed,
   effect,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
@@ -66,6 +67,7 @@ import {
     MatDividerModule,
   ],
   templateUrl: './admin.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './admin.component.scss',
 })
 export class AdminComponent implements OnInit {

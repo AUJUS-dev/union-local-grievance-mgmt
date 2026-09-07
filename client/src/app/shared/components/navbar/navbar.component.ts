@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -23,6 +23,7 @@ import { AuthService } from '../../../core/services/auth.service';
     MatDividerModule
   ],
   templateUrl: './navbar.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './navbar.component.scss'
 })
 export class NavbarComponent {

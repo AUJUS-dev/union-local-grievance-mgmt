@@ -11,17 +11,21 @@
         </p>
       </div>
 
-      <mat-progress-bar *ngIf="isLoading()" mode="indeterminate"></mat-progress-bar>
+      @if (isLoading()) {
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      }
 
       <mat-card-content>
         <!-- Error Banner -->
-        <div *ngIf="errorMessage()" class="error-banner">
-          <mat-icon>error_outline</mat-icon>
-          <span>{{ errorMessage() }}</span>
-        </div>
+        @if (errorMessage()) {
+          <div class="error-banner">
+            <mat-icon>error_outline</mat-icon>
+            <span>{{ errorMessage() }}</span>
+          </div>
+        }
 
         <!-- STEP 2: Onboarding Form (When authenticated with OAuth provider) -->
-        <ng-container *ngIf="auth.currentUser(); else step1Template">
+        @if (auth.currentUser()) {
           <!-- User OAuth Verification Header Banner -->
           <div class="verified-account-banner">
             <div class="account-identity">
@@ -35,7 +39,6 @@
               <mat-icon>swap_horiz</mat-icon> Switch
             </button>
           </div>
-
           <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="onboarding-form">
             <div class="form-grid">
               <!-- Full Name -->
@@ -43,69 +46,78 @@
                 <mat-label>Full Legal Name</mat-label>
                 <input matInput formControlName="displayName" placeholder="e.g. Elena Rodriguez" required>
                 <mat-icon matPrefix>person</mat-icon>
-                <mat-error *ngIf="registerForm.get('displayName')?.hasError('required')">
-                  Full Name is required
-                </mat-error>
+                @if (registerForm.get('displayName')?.hasError('required')) {
+                  <mat-error>
+                    Full Name is required
+                  </mat-error>
+                }
               </mat-form-field>
-
               <!-- Member ID -->
               <mat-form-field appearance="outline" subscriptSizing="dynamic">
                 <mat-label>Member ID / Badge #</mat-label>
                 <input matInput formControlName="memberId" placeholder="e.g. MEM-8842" required style="text-transform: uppercase;">
                 <mat-icon matPrefix>badge</mat-icon>
-                <mat-error *ngIf="registerForm.get('memberId')?.hasError('required')">
-                  Member ID is required
-                </mat-error>
-                <mat-error *ngIf="registerForm.get('memberId')?.hasError('pattern')">
-                  Alphanumeric only (3-20 chars)
-                </mat-error>
+                @if (registerForm.get('memberId')?.hasError('required')) {
+                  <mat-error>
+                    Member ID is required
+                  </mat-error>
+                }
+                @if (registerForm.get('memberId')?.hasError('pattern')) {
+                  <mat-error>
+                    Alphanumeric only (3-20 chars)
+                  </mat-error>
+                }
               </mat-form-field>
-
               <!-- Phone Number -->
               <mat-form-field appearance="outline" subscriptSizing="dynamic">
                 <mat-label>Phone Number</mat-label>
-                <input 
-                  matInput 
-                  type="tel" 
-                  formControlName="phoneNumber" 
-                  placeholder="(NPA) Nxx-xxxx" 
+                <input
+                  matInput
+                  type="tel"
+                  formControlName="phoneNumber"
+                  placeholder="(NPA) Nxx-xxxx"
                   (input)="onPhoneInput($event)"
                   maxlength="14"
                   required>
                 <mat-icon matPrefix>phone</mat-icon>
-                <mat-error *ngIf="registerForm.get('phoneNumber')?.hasError('required')">
-                  Phone number is required
-                </mat-error>
-                <mat-error *ngIf="registerForm.get('phoneNumber')?.hasError('pattern') && !registerForm.get('phoneNumber')?.hasError('required')">
-                  Enter a 10-digit number e.g. (312) 646-0577
-                </mat-error>
+                @if (registerForm.get('phoneNumber')?.hasError('required')) {
+                  <mat-error>
+                    Phone number is required
+                  </mat-error>
+                }
+                @if (registerForm.get('phoneNumber')?.hasError('pattern') && !registerForm.get('phoneNumber')?.hasError('required')) {
+                  <mat-error>
+                    Enter a 10-digit number e.g. (312) 646-0577
+                  </mat-error>
+                }
               </mat-form-field>
-
               <!-- Bargaining Unit -->
               <mat-form-field appearance="outline" class="grid-span-2" subscriptSizing="dynamic">
                 <mat-label>Bargaining Unit</mat-label>
                 <mat-select formControlName="bargainingUnitId" required>
-                  <mat-option *ngFor="let unit of cbaService.bargainingUnits()" [value]="unit.id">
-                    {{ unit.name }} &bull; {{ unit.employerName }} ({{ unit.location }})
-                  </mat-option>
-                  <ng-container *ngIf="cbaService.bargainingUnits().length === 0">
+                  @for (unit of cbaService.bargainingUnits(); track unit) {
+                    <mat-option [value]="unit.id">
+                      {{ unit.name }} &bull; {{ unit.employerName }} ({{ unit.location }})
+                    </mat-option>
+                  }
+                  @if (cbaService.bargainingUnits().length === 0) {
                     <mat-option value="unit-main-mfg">Main Manufacturing Plant &bull; Acme Heavy Industries</mat-option>
                     <mat-option value="unit-logistics">Regional Logistics Center &bull; Acme Logistics Corp</mat-option>
-                  </ng-container>
+                  }
                 </mat-select>
                 <mat-icon matPrefix>domain</mat-icon>
-                <mat-error *ngIf="registerForm.get('bargainingUnitId')?.hasError('required')">
-                  Bargaining Unit selection is required
-                </mat-error>
+                @if (registerForm.get('bargainingUnitId')?.hasError('required')) {
+                  <mat-error>
+                    Bargaining Unit selection is required
+                  </mat-error>
+                }
               </mat-form-field>
-
               <!-- Department / Work Area -->
               <mat-form-field appearance="outline" subscriptSizing="dynamic">
                 <mat-label>Department (Optional)</mat-label>
                 <input matInput formControlName="department" placeholder="e.g. Machining & Assembly">
                 <mat-icon matPrefix>work</mat-icon>
               </mat-form-field>
-
               <!-- Job Classification -->
               <mat-form-field appearance="outline" subscriptSizing="dynamic">
                 <mat-label>Job Title (Optional)</mat-label>
@@ -113,19 +125,17 @@
                 <mat-icon matPrefix>engineering</mat-icon>
               </mat-form-field>
             </div>
-
             <!-- Role Notification -->
             <div class="member-role-note">
               <mat-icon>info</mat-icon>
               <span>Your account will be provisioned with standard <strong>Union Member</strong> rights under Local 1118. Steward or Admin access can be assigned by union officers.</span>
             </div>
-
             <!-- Submit Button -->
             <div class="form-actions">
-              <button 
-                mat-flat-button 
-                color="primary" 
-                type="submit" 
+              <button
+                mat-flat-button
+                color="primary"
+                type="submit"
                 class="submit-registration-btn"
                 [disabled]="isLoading() || registerForm.invalid">
                 <mat-icon>check_circle</mat-icon>
@@ -133,14 +143,10 @@
               </button>
             </div>
           </form>
-        </ng-container>
-
-        <!-- STEP 1: OAuth Sign In / Provider Selection -->
-        <ng-template #step1Template>
+        } @else {
           <div class="sso-instruction">
             <span>Register instantly with your Google or Apple account:</span>
           </div>
-
           <!-- SSO Registration Buttons -->
           <div class="oauth-buttons">
             <button mat-flat-button class="sso-btn google-btn" (click)="signUpWithGoogle()" [disabled]="isLoading()">
@@ -154,7 +160,6 @@
                 <span class="btn-text">Register with Google</span>
               </span>
             </button>
-
             <button mat-flat-button class="sso-btn apple-btn" (click)="signUpWithApple()" [disabled]="isLoading()">
               <span class="btn-inner">
                 <svg class="provider-icon" viewBox="0 0 24 24" fill="currentColor">
@@ -164,18 +169,21 @@
               </span>
             </button>
           </div>
-
           <div class="member-role-note">
             <mat-icon>shield</mat-icon>
             <span>Single Sign-On verifies your identity securely. You will then complete your member profile before filing grievances.</span>
           </div>
-        </ng-template>
+        }
+
+        <!-- STEP 1: OAuth Sign In / Provider Selection -->
       </mat-card-content>
 
-      <mat-card-actions class="card-footer" *ngIf="!auth.currentUser()">
-        <span>Already have an account?</span>
-        <a mat-button color="primary" routerLink="/auth/login">Sign In</a>
-      </mat-card-actions>
+      @if (!auth.currentUser()) {
+        <mat-card-actions class="card-footer">
+          <span>Already have an account?</span>
+          <a mat-button color="primary" routerLink="/auth/login">Sign In</a>
+        </mat-card-actions>
+      }
     </mat-card>
   </div>
 </div>
