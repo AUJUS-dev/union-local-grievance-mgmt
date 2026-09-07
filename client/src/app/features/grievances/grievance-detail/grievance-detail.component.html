@@ -1,4 +1,4 @@
-<ng-container *ngIf="grievance()">
+@if (grievance()) {
   <!-- Page Header & Action Bar -->
   <div class="case-header">
     <div class="header-left">
@@ -24,14 +24,12 @@
         </span>
       </div>
     </div>
-
     <div class="header-actions">
       <button mat-flat-button color="primary" class="pdf-btn" (click)="downloadPdf()">
         <mat-icon>picture_as_pdf</mat-icon> Official PDF Form
       </button>
     </div>
   </div>
-
   <!-- Step Progression Flow -->
   <mat-card class="card-modern mb-6 step-progression-card">
     <h3>CBA Step Progression & Workflow</h3>
@@ -41,56 +39,54 @@
         <div class="node-label">Step 1 Informal</div>
       </div>
       <div class="step-connector" [ngClass]="getConnectorState('STEP_2_FORMAL')"></div>
-
       <div class="step-node" [ngClass]="getStepState('STEP_2_FORMAL')">
         <div class="circle">2</div>
         <div class="node-label">Step 2 Formal</div>
       </div>
       <div class="step-connector" [ngClass]="getConnectorState('STEP_3_MEDIATION')"></div>
-
       <div class="step-node" [ngClass]="getStepState('STEP_3_MEDIATION')">
         <div class="circle">3</div>
         <div class="node-label">Step 3 Mediation</div>
       </div>
       <div class="step-connector" [ngClass]="getConnectorState('STEP_4_ARBITRATION')"></div>
-
       <div class="step-node" [ngClass]="getStepState('STEP_4_ARBITRATION')">
         <div class="circle">4</div>
         <div class="node-label">Step 4 Arbitration</div>
       </div>
     </div>
   </mat-card>
-
   <!-- Deadlines & Steward Actions Row -->
   <div class="detail-grid">
     <!-- Main Case Content & Tabs -->
     <div class="main-column">
       <!-- Deadline Banner (When Active) -->
-      <div class="deadline-banner" *ngIf="!isCompleted()">
-        <div class="banner-icon">
-          <mat-icon>timer</mat-icon>
+      @if (!isCompleted()) {
+        <div class="deadline-banner">
+          <div class="banner-icon">
+            <mat-icon>timer</mat-icon>
+          </div>
+          <div class="banner-content">
+            <h4>Contractual Response Deadline</h4>
+            <p>
+              <strong>{{ grievance()!.deadlines.daysRemaining }} Days Remaining</strong> &bull; Due by {{ grievance()!.deadlines.currentDeadline | date:'fullDate' }}
+            </p>
+          </div>
         </div>
-        <div class="banner-content">
-          <h4>Contractual Response Deadline</h4>
-          <p>
-            <strong>{{ grievance()!.deadlines.daysRemaining }} Days Remaining</strong> &bull; Due by {{ grievance()!.deadlines.currentDeadline | date:'fullDate' }}
-          </p>
-        </div>
-      </div>
-
+      }
       <!-- Closed / Settled Banner (When Concluded) -->
-      <div class="completed-banner-card" *ngIf="isCompleted()">
-        <div class="banner-icon completed">
-          <mat-icon>{{ grievance()!.currentStep === 'WITHDRAWN' ? 'cancel' : 'check_circle' }}</mat-icon>
+      @if (isCompleted()) {
+        <div class="completed-banner-card">
+          <div class="banner-icon completed">
+            <mat-icon>{{ grievance()!.currentStep === 'WITHDRAWN' ? 'cancel' : 'check_circle' }}</mat-icon>
+          </div>
+          <div class="banner-content">
+            <h4>Grievance Case is {{ grievance()!.currentStep === 'WITHDRAWN' ? 'Withdrawn' : grievance()!.currentStep === 'CLOSED' ? 'Closed' : 'Settled & Completed' }}</h4>
+            <p>
+              This grievance has concluded. Stewards and Administrators can re-open or restore this case below if necessary.
+            </p>
+          </div>
         </div>
-        <div class="banner-content">
-          <h4>Grievance Case is {{ grievance()!.currentStep === 'WITHDRAWN' ? 'Withdrawn' : grievance()!.currentStep === 'CLOSED' ? 'Closed' : 'Settled & Completed' }}</h4>
-          <p>
-            This grievance has concluded. Stewards and Administrators can re-open or restore this case below if necessary.
-          </p>
-        </div>
-      </div>
-
+      }
       <mat-card class="card-modern tabs-card">
         <mat-tab-group>
           <!-- TAB 1: Case Details -->
@@ -99,165 +95,169 @@
               <div class="detail-section">
                 <h4>Collective Bargaining Agreement Articles Cited:</h4>
                 <div class="cba-articles-list">
-                  <div class="article-box" *ngFor="let art of grievance()!.violatedArticles">
-                    <span class="art-num">{{ art.articleNumber }}</span>
-                    <div>
-                      <strong>{{ art.title }}</strong>
-                      <span class="art-sec" *ngIf="art.section">{{ art.section }}</span>
+                  @for (art of grievance()!.violatedArticles; track art) {
+                    <div class="article-box">
+                      <span class="art-num">{{ art.articleNumber }}</span>
+                      <div>
+                        <strong>{{ art.title }}</strong>
+                        @if (art.section) {
+                          <span class="art-sec">{{ art.section }}</span>
+                        }
+                      </div>
                     </div>
-                  </div>
+                  }
                 </div>
               </div>
-
               <div class="detail-section">
                 <h4>Statement of Facts:</h4>
                 <div class="text-box">{{ grievance()!.description }}</div>
               </div>
-
               <div class="detail-section">
                 <h4>Remedy Requested:</h4>
                 <div class="text-box remedy-box">{{ grievance()!.remedyRequested }}</div>
               </div>
-
               <div class="detail-section">
                 <h4>Management Supervisor:</h4>
                 <p>{{ grievance()!.supervisorName || 'Not specified' }} &bull; Employer: {{ grievance()!.employerName }}</p>
               </div>
             </div>
           </mat-tab>
-
           <!-- TAB 2: Notes & Statements -->
           <mat-tab label="Notes & Statements ({{ notes().length }})">
             <div class="tab-content">
               <!-- Add Note Form -->
-              <div class="add-note-box" *ngIf="auth.isSteward() || auth.isAdmin()">
-                <h4>Add Confidential Steward Investigation Note</h4>
-                <mat-form-field appearance="outline" class="full-width">
-                  <mat-label>Confidential Steward Note</mat-label>
-                  <textarea matInput rows="3" [(ngModel)]="newNoteContent" placeholder="Enter witness interview details, timeline facts, or employer statements..."></textarea>
-                </mat-form-field>
-                <div class="flex justify-between items-center flex-wrap gap-2">
-                  <span class="confidential-tag">
-                    <mat-icon>lock</mat-icon> Confidential Union Note
-                  </span>
-                  <button mat-flat-button color="primary" [disabled]="!newNoteContent.trim()" (click)="addNote()">
-                    Add Note
-                  </button>
+              @if (auth.isSteward() || auth.isAdmin()) {
+                <div class="add-note-box">
+                  <h4>Add Confidential Steward Investigation Note</h4>
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Confidential Steward Note</mat-label>
+                    <textarea matInput rows="3" [(ngModel)]="newNoteContent" placeholder="Enter witness interview details, timeline facts, or employer statements..."></textarea>
+                  </mat-form-field>
+                  <div class="flex justify-between items-center flex-wrap gap-2">
+                    <span class="confidential-tag">
+                      <mat-icon>lock</mat-icon> Confidential Union Note
+                    </span>
+                    <button mat-flat-button color="primary" [disabled]="!newNoteContent.trim()" (click)="addNote()">
+                      Add Note
+                    </button>
+                  </div>
                 </div>
-              </div>
-
+              }
               <!-- Notes List -->
               <div class="notes-list">
-                <div *ngFor="let n of notes()" class="note-card">
-                  <div class="note-header">
-                    <span class="author">{{ n.authorName }} ({{ n.authorRole | uppercase }})</span>
-                    <span class="date">{{ n.createdAt | date:'short' }}</span>
+                @for (n of notes(); track n) {
+                  <div class="note-card">
+                    <div class="note-header">
+                      <span class="author">{{ n.authorName }} ({{ n.authorRole | uppercase }})</span>
+                      <span class="date">{{ n.createdAt | date:'short' }}</span>
+                    </div>
+                    <p class="note-text">{{ n.content }}</p>
                   </div>
-                  <p class="note-text">{{ n.content }}</p>
-                </div>
-                <div *ngIf="notes().length === 0" class="empty-notes">
-                  No investigation notes recorded yet.
-                </div>
+                }
+                @if (notes().length === 0) {
+                  <div class="empty-notes">
+                    No investigation notes recorded yet.
+                  </div>
+                }
               </div>
             </div>
           </mat-tab>
-
           <!-- TAB 3: Audit Activity Trail -->
           <mat-tab label="Audit Trail ({{ activities().length }})">
             <div class="tab-content">
               <div class="activity-timeline">
-                <div *ngFor="let act of activities()" class="activity-item">
-                  <div class="act-icon">
-                    <mat-icon color="primary">history</mat-icon>
-                  </div>
-                  <div class="act-content">
-                    <div class="act-desc">{{ act.description }}</div>
-                    <div class="act-meta">
-                      <span>By: {{ act.performedBy.name }} ({{ act.performedBy.role }})</span>
-                      <span>&bull; {{ act.timestamp | date:'medium' }}</span>
+                @for (act of activities(); track act) {
+                  <div class="activity-item">
+                    <div class="act-icon">
+                      <mat-icon color="primary">history</mat-icon>
+                    </div>
+                    <div class="act-content">
+                      <div class="act-desc">{{ act.description }}</div>
+                      <div class="act-meta">
+                        <span>By: {{ act.performedBy.name }} ({{ act.performedBy.role }})</span>
+                        <span>&bull; {{ act.timestamp | date:'medium' }}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
+                }
               </div>
             </div>
           </mat-tab>
         </mat-tab-group>
       </mat-card>
     </div>
-
     <!-- Right Side: Steward Escalation Controls -->
     <div class="sidebar-column">
-      <mat-card class="card-modern action-panel" *ngIf="auth.isSteward() || auth.isAdmin()">
-        <div class="panel-header">
-          <mat-icon color="primary">settings</mat-icon>
-          <h3>Steward Case Management</h3>
-        </div>
-
-        <!-- Escalate Step Action (When Active) -->
-        <div class="action-block" *ngIf="!isCompleted()">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Escalate Contractual Step</mat-label>
-            <mat-select [value]="selectedNextStep()" (selectionChange)="selectedNextStep.set($event.value)">
-              <mat-option value="STEP_2_FORMAL">Escalate to Step 2 (Formal HR)</mat-option>
-              <mat-option value="STEP_3_MEDIATION">Escalate to Step 3 (Mediation)</mat-option>
-              <mat-option value="STEP_4_ARBITRATION">Escalate to Step 4 (Arbitration)</mat-option>
-              <mat-option value="SETTLED">Record Settlement Agreement</mat-option>
-              <mat-option value="WITHDRAWN">Withdraw Grievance</mat-option>
-            </mat-select>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Step Transition Notes</mat-label>
-            <textarea matInput rows="2" [(ngModel)]="stepTransitionNotes" placeholder="Reason for escalation or settlement terms..."></textarea>
-          </mat-form-field>
-
-          <button mat-flat-button color="primary" class="full-width action-submit-btn" (click)="escalateStep()">
-            <mat-icon>forward</mat-icon> Execute Step Transition
-          </button>
-        </div>
-
-        <!-- Re-open / Restore Case Action (When Completed) -->
-        <div class="action-block reopen-block" *ngIf="isCompleted()">
-          <div class="reopen-badge">
-            <mat-icon color="warn">restart_alt</mat-icon>
-            <span>Restore / Re-open Case</span>
+      @if (auth.isSteward() || auth.isAdmin()) {
+        <mat-card class="card-modern action-panel">
+          <div class="panel-header">
+            <mat-icon color="primary">settings</mat-icon>
+            <h3>Steward Case Management</h3>
           </div>
-          <p class="reopen-hint">
-            Re-open this case back to an active contractual step in case of accidental closing or unmet settlement conditions.
-          </p>
-
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Restore to Active Step</mat-label>
-            <mat-select [value]="reopenTargetStep()" (selectionChange)="reopenTargetStep.set($event.value)">
-              <mat-option value="STEP_1_INFORMAL">Step 1 (Informal Supervisor)</mat-option>
-              <mat-option value="STEP_2_FORMAL">Step 2 (Formal HR Dept)</mat-option>
-              <mat-option value="STEP_3_MEDIATION">Step 3 (Mediation & Legal)</mat-option>
-              <mat-option value="STEP_4_ARBITRATION">Step 4 (Arbitration Board)</mat-option>
-            </mat-select>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Reason for Re-opening</mat-label>
-            <textarea matInput rows="2" [(ngModel)]="reopenNotes" placeholder="e.g. Accidental closing, settlement terms violated by employer..."></textarea>
-          </mat-form-field>
-
-          <button mat-flat-button color="warn" class="full-width action-submit-btn" (click)="reopenGrievance()">
-            <mat-icon>lock_open</mat-icon> Re-open Grievance
-          </button>
-        </div>
-
-        <!-- Assign Steward (Only Visible on Open Cases) -->
-        <div class="action-block mt-4" *ngIf="!isCompleted()">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Assign Union Steward</mat-label>
-            <mat-select [value]="grievance()!.assignedStewardUid || 'steward-uid-001'" (selectionChange)="assignSteward($event.value)">
-              <mat-option value="steward-uid-001">Marcus Brody (Chief Steward)</mat-option>
-              <mat-option value="admin-uid-001">Sarah Connor (Admin Officer)</mat-option>
-            </mat-select>
-          </mat-form-field>
-        </div>
-      </mat-card>
-
+          <!-- Escalate Step Action (When Active) -->
+          @if (!isCompleted()) {
+            <div class="action-block">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Escalate Contractual Step</mat-label>
+                <mat-select [value]="selectedNextStep()" (selectionChange)="selectedNextStep.set($event.value)">
+                  <mat-option value="STEP_2_FORMAL">Escalate to Step 2 (Formal HR)</mat-option>
+                  <mat-option value="STEP_3_MEDIATION">Escalate to Step 3 (Mediation)</mat-option>
+                  <mat-option value="STEP_4_ARBITRATION">Escalate to Step 4 (Arbitration)</mat-option>
+                  <mat-option value="SETTLED">Record Settlement Agreement</mat-option>
+                  <mat-option value="WITHDRAWN">Withdraw Grievance</mat-option>
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Step Transition Notes</mat-label>
+                <textarea matInput rows="2" [(ngModel)]="stepTransitionNotes" placeholder="Reason for escalation or settlement terms..."></textarea>
+              </mat-form-field>
+              <button mat-flat-button color="primary" class="full-width action-submit-btn" (click)="escalateStep()">
+                <mat-icon>forward</mat-icon> Execute Step Transition
+              </button>
+            </div>
+          }
+          <!-- Re-open / Restore Case Action (When Completed) -->
+          @if (isCompleted()) {
+            <div class="action-block reopen-block">
+              <div class="reopen-badge">
+                <mat-icon color="warn">restart_alt</mat-icon>
+                <span>Restore / Re-open Case</span>
+              </div>
+              <p class="reopen-hint">
+                Re-open this case back to an active contractual step in case of accidental closing or unmet settlement conditions.
+              </p>
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Restore to Active Step</mat-label>
+                <mat-select [value]="reopenTargetStep()" (selectionChange)="reopenTargetStep.set($event.value)">
+                  <mat-option value="STEP_1_INFORMAL">Step 1 (Informal Supervisor)</mat-option>
+                  <mat-option value="STEP_2_FORMAL">Step 2 (Formal HR Dept)</mat-option>
+                  <mat-option value="STEP_3_MEDIATION">Step 3 (Mediation & Legal)</mat-option>
+                  <mat-option value="STEP_4_ARBITRATION">Step 4 (Arbitration Board)</mat-option>
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Reason for Re-opening</mat-label>
+                <textarea matInput rows="2" [(ngModel)]="reopenNotes" placeholder="e.g. Accidental closing, settlement terms violated by employer..."></textarea>
+              </mat-form-field>
+              <button mat-flat-button color="warn" class="full-width action-submit-btn" (click)="reopenGrievance()">
+                <mat-icon>lock_open</mat-icon> Re-open Grievance
+              </button>
+            </div>
+          }
+          <!-- Assign Steward (Only Visible on Open Cases) -->
+          @if (!isCompleted()) {
+            <div class="action-block mt-4">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Assign Union Steward</mat-label>
+                <mat-select [value]="grievance()!.assignedStewardUid || 'steward-uid-001'" (selectionChange)="assignSteward($event.value)">
+                  <mat-option value="steward-uid-001">Marcus Brody (Chief Steward)</mat-option>
+                  <mat-option value="admin-uid-001">Sarah Connor (Admin Officer)</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          }
+        </mat-card>
+      }
       <!-- Member Information Summary -->
       <mat-card class="card-modern mt-6">
         <h3>Grievant Details</h3>
@@ -271,4 +271,4 @@
       </mat-card>
     </div>
   </div>
-</ng-container>
+}

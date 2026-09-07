@@ -10,14 +10,18 @@
         <p class="subtitle">Grievance Management & Contract Enforcement</p>
       </div>
 
-      <mat-progress-bar *ngIf="isLoading()" mode="indeterminate"></mat-progress-bar>
+      @if (isLoading()) {
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      }
 
       <mat-card-content>
         <!-- Error Banner -->
-        <div *ngIf="errorMessage()" class="error-banner">
-          <mat-icon>error_outline</mat-icon>
-          <span>{{ errorMessage() }}</span>
-        </div>
+        @if (errorMessage()) {
+          <div class="error-banner">
+            <mat-icon>error_outline</mat-icon>
+            <span>{{ errorMessage() }}</span>
+          </div>
+        }
 
         <div class="sso-instruction">
           <span>Sign in with your authorized Single Sign-On provider:</span>

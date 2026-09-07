@@ -1,5 +1,5 @@
-import { Component, inject, OnInit, signal, effect } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, OnInit, signal, effect, ChangeDetectionStrategy } from '@angular/core';
+
 import { Router, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -18,7 +18,6 @@ import { CBAService } from '../../../core/services/cba.service';
   selector: 'app-register',
   standalone: true,
   imports: [
-    CommonModule,
     RouterModule,
     ReactiveFormsModule,
     MatCardModule,
@@ -30,8 +29,9 @@ import { CBAService } from '../../../core/services/cba.service';
     MatSelectModule,
     MatDividerModule,
     MatSnackBarModule
-  ],
+],
   templateUrl: './register.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './register.component.scss'
 })
 export class RegisterComponent implements OnInit {

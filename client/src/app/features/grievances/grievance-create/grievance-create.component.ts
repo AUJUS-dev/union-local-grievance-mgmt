@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
@@ -51,6 +51,7 @@ import { CBAArticle, Grievance } from '@union-local/shared';
     MatTimepickerModule,
   ],
   templateUrl: './grievance-create.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './grievance-create.component.scss',
 })
 export class GrievanceCreateComponent implements OnInit {

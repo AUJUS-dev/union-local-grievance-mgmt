@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy, signal, computed, effect } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal, computed, effect, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -38,6 +38,7 @@ import { Grievance, GrievanceStep, GrievanceActivityLog, GrievanceNote } from '@
     MatTooltipModule
   ],
   templateUrl: './grievance-detail.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './grievance-detail.component.scss'
 })
 export class GrievanceDetailComponent implements OnInit, OnDestroy {

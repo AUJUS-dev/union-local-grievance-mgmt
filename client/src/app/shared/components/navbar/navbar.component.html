@@ -12,28 +12,33 @@
     </a>
 
     <!-- Desktop Navigation Links (When Authenticated and Registered) -->
-    <nav class="nav-links desktop-nav" *ngIf="auth.isAuthenticated() && auth.isRegistered()">
-      <a mat-button routerLink="/dashboard" routerLinkActive="active-nav">
-        <mat-icon>dashboard</mat-icon> Dashboard
-      </a>
-      <a mat-button routerLink="/grievances" routerLinkActive="active-nav" [routerLinkActiveOptions]="{ exact: true }">
-        <mat-icon>list_alt</mat-icon> Grievances
-      </a>
-      <a mat-flat-button color="primary" routerLink="/grievances/create" class="new-filing-btn">
-        <mat-icon>add_circle</mat-icon> File Grievance
-      </a>
-      <a mat-button *ngIf="auth.isAdmin()" routerLink="/admin" routerLinkActive="active-nav">
-        <mat-icon>admin_panel_settings</mat-icon> Administration
-      </a>
-    </nav>
+    @if (auth.isAuthenticated() && auth.isRegistered()) {
+      <nav class="nav-links desktop-nav">
+        <a mat-button routerLink="/dashboard" routerLinkActive="active-nav">
+          <mat-icon>dashboard</mat-icon> Dashboard
+        </a>
+        <a mat-button routerLink="/grievances" routerLinkActive="active-nav" [routerLinkActiveOptions]="{ exact: true }">
+          <mat-icon>list_alt</mat-icon> Grievances
+        </a>
+        <a mat-flat-button color="primary" routerLink="/grievances/create" class="new-filing-btn">
+          <mat-icon>add_circle</mat-icon> File Grievance
+        </a>
+        @if (auth.isAdmin()) {
+          <a mat-button routerLink="/admin" routerLinkActive="active-nav">
+            <mat-icon>admin_panel_settings</mat-icon> Administration
+          </a>
+        }
+      </nav>
+    }
 
     <div class="flex-spacer"></div>
 
     <!-- Right Side Actions & User Menu -->
-    <div class="user-section" *ngIf="auth.isAuthenticated()">
-      <!-- Role Indicator Chip -->
-      <span 
-        class="badge role-badge" 
+    @if (auth.isAuthenticated()) {
+      <div class="user-section">
+        <!-- Role Indicator Chip -->
+        <span
+          class="badge role-badge"
         [ngClass]="{
           'badge-danger': auth.userRole() === 'admin',
           'badge-purple': auth.userRole() === 'business_agent',
@@ -41,110 +46,106 @@
           'badge-primary': auth.userRole() === 'member' && auth.isRegistered(),
           'badge-info': !auth.isRegistered()
         }">
-        <mat-icon style="font-size: 14px; width: 14px; height: 14px;">
-          {{ !auth.isRegistered() ? 'how_to_reg' : getRoleIcon(auth.userRole() || '') }}
-        </mat-icon>
-        <span class="role-text">{{ (!auth.isRegistered() ? 'ONBOARDING' : formatRole(auth.userRole() || 'member')) | uppercase }}</span>
-      </span>
-
-      <!-- Fast Role Switcher (Desktop Only) -->
-      <button mat-stroked-button [matMenuTriggerFor]="demoMenu" class="demo-switch-btn desktop-only">
-        <mat-icon>swap_horiz</mat-icon> Switch Demo User
-      </button>
-
-      <!-- User Menu (Desktop) -->
-      <button mat-icon-button [matMenuTriggerFor]="userMenu" aria-label="User profile" class="user-avatar-btn desktop-only">
-        <mat-icon>account_circle</mat-icon>
-      </button>
-
-      <!-- Mobile Hamburger Button -->
-      <button mat-icon-button [matMenuTriggerFor]="mobileNavMenu" aria-label="Mobile menu" class="mobile-menu-btn">
-        <mat-icon>menu</mat-icon>
-      </button>
-
-      <!-- Shared Demo Switcher Menu -->
-      <mat-menu #demoMenu="matMenu">
-        <div class="menu-header">Quick Role Switch (Local Dev)</div>
-        <button mat-menu-item (click)="auth.demoLogin('admin')">
-          <mat-icon color="warn">security</mat-icon>
-          <span>Admin (Sarah Connor)</span>
+          <mat-icon style="font-size: 14px; width: 14px; height: 14px;">
+            {{ !auth.isRegistered() ? 'how_to_reg' : getRoleIcon(auth.userRole() || '') }}
+          </mat-icon>
+          <span class="role-text">{{ (!auth.isRegistered() ? 'ONBOARDING' : formatRole(auth.userRole() || 'member')) | uppercase }}</span>
+        </span>
+        <!-- Fast Role Switcher (Desktop Only) -->
+        <button mat-stroked-button [matMenuTriggerFor]="demoMenu" class="demo-switch-btn desktop-only">
+          <mat-icon>swap_horiz</mat-icon> Switch Demo User
         </button>
-        <button mat-menu-item (click)="auth.demoLogin('business_agent')">
-          <mat-icon style="color: #9333ea">business_center</mat-icon>
-          <span>Business Agent (David Miller)</span>
+        <!-- User Menu (Desktop) -->
+        <button mat-icon-button [matMenuTriggerFor]="userMenu" aria-label="User profile" class="user-avatar-btn desktop-only">
+          <mat-icon>account_circle</mat-icon>
         </button>
-        <button mat-menu-item (click)="auth.demoLogin('chief_steward')">
-          <mat-icon style="color: #ea580c">stars</mat-icon>
-          <span>Chief Steward (Marcus Brody)</span>
+        <!-- Mobile Hamburger Button -->
+        <button mat-icon-button [matMenuTriggerFor]="mobileNavMenu" aria-label="Mobile menu" class="mobile-menu-btn">
+          <mat-icon>menu</mat-icon>
         </button>
-        <button mat-menu-item (click)="auth.demoLogin('steward')">
-          <mat-icon style="color: #0284c7">badge</mat-icon>
-          <span>Shop Steward (John Davis)</span>
-        </button>
-        <button mat-menu-item (click)="auth.demoLogin('member')">
-          <mat-icon color="primary">person</mat-icon>
-          <span>Member (Elena Rodriguez)</span>
-        </button>
-      </mat-menu>
-
-      <!-- Desktop User Menu -->
-      <mat-menu #userMenu="matMenu">
-        <div class="user-info-box">
-          <div class="name">{{ auth.userProfile()?.displayName || auth.currentUser()?.email }}</div>
-          <div class="email">{{ auth.currentUser()?.email }}</div>
-          <div class="local">{{ auth.userProfile()?.localNumber || 'Local 1118' }}</div>
-        </div>
-        <mat-divider></mat-divider>
-        <button mat-menu-item (click)="auth.logout()">
-          <mat-icon>logout</mat-icon>
-          <span>Sign Out</span>
-        </button>
-      </mat-menu>
-
-      <!-- Mobile Full Navigation Menu -->
-      <mat-menu #mobileNavMenu="matMenu" class="mobile-mat-menu">
-        <div class="user-info-box">
-          <div class="name">{{ auth.userProfile()?.displayName || auth.currentUser()?.email }}</div>
-          <div class="email">{{ auth.currentUser()?.email }}</div>
-          <div class="local">{{ auth.userProfile()?.localNumber || 'Local 1118' }} &bull; {{ formatRole(auth.userRole() || 'member') }}</div>
-        </div>
-        <mat-divider></mat-divider>
-
-        <ng-container *ngIf="auth.isRegistered()">
-          <a mat-menu-item routerLink="/dashboard">
-            <mat-icon color="primary">dashboard</mat-icon>
-            <span>Dashboard</span>
-          </a>
-          <a mat-menu-item routerLink="/grievances">
-            <mat-icon>list_alt</mat-icon>
-            <span>Grievances Registry</span>
-          </a>
-          <a mat-menu-item routerLink="/grievances/create" class="mobile-highlight-item">
-            <mat-icon color="primary">add_circle</mat-icon>
-            <span><strong>File New Grievance</strong></span>
-          </a>
-          <a mat-menu-item *ngIf="auth.isAdmin()" routerLink="/admin">
-            <mat-icon color="warn">admin_panel_settings</mat-icon>
-            <span>Administration</span>
-          </a>
+        <!-- Shared Demo Switcher Menu -->
+        <mat-menu #demoMenu="matMenu">
+          <div class="menu-header">Quick Role Switch (Local Dev)</div>
+          <button mat-menu-item (click)="auth.demoLogin('admin')">
+            <mat-icon color="warn">security</mat-icon>
+            <span>Admin (Sarah Connor)</span>
+          </button>
+          <button mat-menu-item (click)="auth.demoLogin('business_agent')">
+            <mat-icon style="color: #9333ea">business_center</mat-icon>
+            <span>Business Agent (David Miller)</span>
+          </button>
+          <button mat-menu-item (click)="auth.demoLogin('chief_steward')">
+            <mat-icon style="color: #ea580c">stars</mat-icon>
+            <span>Chief Steward (Marcus Brody)</span>
+          </button>
+          <button mat-menu-item (click)="auth.demoLogin('steward')">
+            <mat-icon style="color: #0284c7">badge</mat-icon>
+            <span>Shop Steward (John Davis)</span>
+          </button>
+          <button mat-menu-item (click)="auth.demoLogin('member')">
+            <mat-icon color="primary">person</mat-icon>
+            <span>Member (Elena Rodriguez)</span>
+          </button>
+        </mat-menu>
+        <!-- Desktop User Menu -->
+        <mat-menu #userMenu="matMenu">
+          <div class="user-info-box">
+            <div class="name">{{ auth.userProfile()?.displayName || auth.currentUser()?.email }}</div>
+            <div class="email">{{ auth.currentUser()?.email }}</div>
+            <div class="local">{{ auth.userProfile()?.localNumber || 'Local 1118' }}</div>
+          </div>
           <mat-divider></mat-divider>
-        </ng-container>
+          <button mat-menu-item (click)="auth.logout()">
+            <mat-icon>logout</mat-icon>
+            <span>Sign Out</span>
+          </button>
+        </mat-menu>
+        <!-- Mobile Full Navigation Menu -->
+        <mat-menu #mobileNavMenu="matMenu" class="mobile-mat-menu">
+          <div class="user-info-box">
+            <div class="name">{{ auth.userProfile()?.displayName || auth.currentUser()?.email }}</div>
+            <div class="email">{{ auth.currentUser()?.email }}</div>
+            <div class="local">{{ auth.userProfile()?.localNumber || 'Local 1118' }} &bull; {{ formatRole(auth.userRole() || 'member') }}</div>
+          </div>
+          <mat-divider></mat-divider>
+          @if (auth.isRegistered()) {
+            <a mat-menu-item routerLink="/dashboard">
+              <mat-icon color="primary">dashboard</mat-icon>
+              <span>Dashboard</span>
+            </a>
+            <a mat-menu-item routerLink="/grievances">
+              <mat-icon>list_alt</mat-icon>
+              <span>Grievances Registry</span>
+            </a>
+            <a mat-menu-item routerLink="/grievances/create" class="mobile-highlight-item">
+              <mat-icon color="primary">add_circle</mat-icon>
+              <span><strong>File New Grievance</strong></span>
+            </a>
+            @if (auth.isAdmin()) {
+              <a mat-menu-item routerLink="/admin">
+                <mat-icon color="warn">admin_panel_settings</mat-icon>
+                <span>Administration</span>
+              </a>
+            }
+            <mat-divider></mat-divider>
+          }
+          <button mat-menu-item [matMenuTriggerFor]="demoMenu">
+            <mat-icon>swap_horiz</mat-icon>
+            <span>Switch Demo User</span>
+          </button>
+          <mat-divider></mat-divider>
+          <button mat-menu-item (click)="auth.logout()">
+            <mat-icon color="warn">logout</mat-icon>
+            <span>Sign Out</span>
+          </button>
+        </mat-menu>
+      </div>
+    }
 
-        <button mat-menu-item [matMenuTriggerFor]="demoMenu">
-          <mat-icon>swap_horiz</mat-icon>
-          <span>Switch Demo User</span>
-        </button>
-
-        <mat-divider></mat-divider>
-        <button mat-menu-item (click)="auth.logout()">
-          <mat-icon color="warn">logout</mat-icon>
-          <span>Sign Out</span>
-        </button>
-      </mat-menu>
-    </div>
-
-    <div *ngIf="!auth.isAuthenticated()">
-      <a mat-flat-button color="primary" routerLink="/auth/login">Sign In</a>
-    </div>
+    @if (!auth.isAuthenticated()) {
+      <div>
+        <a mat-flat-button color="primary" routerLink="/auth/login">Sign In</a>
+      </div>
+    }
   </div>
 </mat-toolbar>
